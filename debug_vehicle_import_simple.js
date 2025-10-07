@@ -8,10 +8,16 @@ async function testVehicleImport() {
   try {
     console.log('🔧 Probando importación directa de vehículos...');
 
-    // Configuración directa
-    const API_KEY = 'wYQo3uMCqJYXd9eFWnpSGW2qcKWHjAhAKvw2NNzMnE4KjrSKKW';
-    const COMPANY_ID = 1236;
+    // Configuración desde variables de entorno
+    const API_KEY = process.env.METASYNC_API_KEY_ALT;
+    const COMPANY_ID = parseInt(process.env.METASYNC_COMPANY_ID_ALT || '1236');
     const CHANNEL = 'web';
+    
+    if (!API_KEY) {
+      console.error('❌ Error: METASYNC_API_KEY_ALT no está configurada en las variables de entorno');
+      await pool.end();
+      return;
+    }
 
     // Crear headers de la petición
     const headers = {

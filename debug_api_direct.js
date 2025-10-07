@@ -4,8 +4,13 @@ import fetch from 'node-fetch';
 async function debugAPIEndpoint() {
   console.log('🔍 Analizando endpoint directo de API MetaSync...\n');
 
-  const apiKey = 'B2C23D2A-FA1C-455A-975A-B4BA85CA1E9F';
-  const companyId = 161;
+  const apiKey = process.env.METASYNC_API_KEY;
+  const companyId = parseInt(process.env.METASYNC_COMPANY_ID || '161');
+  
+  if (!apiKey) {
+    console.error('❌ Error: METASYNC_API_KEY no está configurada en las variables de entorno');
+    return;
+  }
   
   try {
     console.log('📡 Llamando a API de piezas...');
