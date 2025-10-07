@@ -49,34 +49,49 @@ export async function handleChryslerParts(
         break;
     }
     
-    // Construir la consulta base
+    // Construir la consulta base con parámetros seguros
+    const params: any[] = [];
+    let modeloCondition = '';
+    
+    if (modelo && modelo !== 'all-models') {
+      params.push(modelo);
+      modeloCondition = ` AND modelo = $${params.length}`;
+    }
+    
+    params.push(activo);
+    const activoParam = `$${params.length}`;
+    
     let baseQuery = `
       FROM parts p
       WHERE p.id_vehiculo IN (
         SELECT id_local FROM vehicles WHERE marca = 'CHRYSLER'
-        ${modelo && modelo !== 'all-models' ? ` AND modelo = '${modelo}'` : ''}
+        ${modeloCondition}
       )
-      AND p.activo = ${activo}
+      AND p.activo = ${activoParam}
       AND CAST(p.precio AS DECIMAL) > 0
     `;
     
     // Consulta para contar el total de resultados
     const countQuery = `SELECT COUNT(*) as total ${baseQuery}`;
     
+    // Parámetros para la consulta de datos (incluye limit y offset)
+    const dataParams = [...params];
+    dataParams.push(limit, offset);
+    
     // Consulta para obtener los datos paginados
     const dataQuery = `
       SELECT p.* 
       ${baseQuery}
       ORDER BY ${orderBy}
-      LIMIT ${limit} OFFSET ${offset}
+      LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}
     `;
     
     // Ejecutar la consulta de conteo
-    const countResult = await pool.query(countQuery);
+    const countResult = await pool.query(countQuery, params);
     const totalCount = parseInt(countResult.rows[0].total);
     
     // Ejecutar la consulta de datos
-    const result = await pool.query(dataQuery);
+    const result = await pool.query(dataQuery, dataParams);
     console.log(`CHRYSLER: Encontradas ${result.rows.length} piezas de ${totalCount} totales`);
     
     // Transformar los resultados al formato esperado por el frontend
