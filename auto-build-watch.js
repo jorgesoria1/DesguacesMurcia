@@ -26,7 +26,7 @@ function runBuild() {
 
   buildProcess = spawn('npm', ['run', 'build'], {
     stdio: 'inherit',
-    shell: true
+    shell: false
   });
 
   buildProcess.on('close', (code) => {
@@ -36,7 +36,7 @@ function runBuild() {
       
       // Sincronizar archivos desde dist/public a server/public
       try {
-        const syncProcess = spawn('cp', ['-r', 'dist/public/.', 'server/public/'], { shell: true });
+        const syncProcess = spawn('cp', ['-r', 'dist/public/.', 'server/public/'], { shell: false });
         syncProcess.on('close', (syncCode) => {
           if (syncCode === 0) {
             console.log('🔄 Archivos sincronizados a server/public exitosamente');

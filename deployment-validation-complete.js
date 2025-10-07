@@ -19,7 +19,7 @@ async function testTypeScriptCompilation() {
   return new Promise((resolve) => {
     const child = spawn('npx', ['tsc', '--noEmit', '--skipLibCheck'], {
       stdio: 'pipe',
-      shell: true
+      shell: false
     });
     
     let stderr = '';
