@@ -1856,7 +1856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Get part by ID with vehicle information and related parts - Ultra-optimized combined query
-  app.get("/api/parts/:id", requireAppRequest, async (req: Request, res: Response) => {
+  app.get("/api/parts/:id", async (req: Request, res: Response) => {
     try {
       const partId = parseInt(req.params.id);
       const includeRelated = req.query.includeRelated === 'true';
@@ -2588,7 +2588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint para obtener un vehículo por ID
 
 // Obtener vehículo por ID con sus piezas - Optimized single query
-app.get("/api/vehicles/:id", requireAppRequest, async (req, res) => {
+app.get("/api/vehicles/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const soloActivas = req.query.soloActivas !== 'false';
@@ -2666,7 +2666,7 @@ app.get("/api/vehicles/:id", requireAppRequest, async (req, res) => {
 });
 
   // Endpoint para obtener vehículos con paginación
-  app.get("/api/vehicles", requireAppRequest, async (req: Request, res: Response) => {
+  app.get("/api/vehicles", async (req: Request, res: Response) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
       const limit = parseInt(url.searchParams.get("limit") || "50000"); // Mostrar muchos por defecto
