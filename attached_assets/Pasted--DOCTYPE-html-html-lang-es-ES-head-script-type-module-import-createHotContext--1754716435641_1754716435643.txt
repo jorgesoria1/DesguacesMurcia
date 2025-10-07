@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <script type="module">
+    import { createHotContext } from "/@vite/client";
+    const hot = createHotContext("/__dummy__runtime-error-plugin");
+
+    function sendError(error) {
+        if (!(error instanceof Error)) {
+            error = new Error("(unknown runtime error)");
+        }
+        const serialized = {
+            message: error.message,
+            stack: error.stack,
+        };
+        hot.send("runtime-error-plugin:error", serialized);
+    }
+
+    window.addEventListener("error", (evt) => {
+        sendError(evt.error);
+    });
+
+    window.addEventListener("unhandledrejection", (evt) => {
+        sendError(evt.reason);
+    });
+    </script>
+
+    <script type="module">
+    import RefreshRuntime from "/@react-refresh"
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+    <title>Desguace Murcia</title>
+    <meta name="description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta name="keywords" content="desguace murcia, repuestos vehículos, piezas coche, recambios originales, garantía 3 meses"/>
+
+    <!-- Open Graph meta tags -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="Desguace Murcia"/>
+    <meta property="og:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta property="og:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"/>
+    <meta property="og:url" content="https://desguacemurcia.com"/>
+    <meta property="og:site_name" content="Desguace Murcia"/>
+
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Desguace Murcia"/>
+    <meta name="twitter:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"/>
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    <script type="module">
+    "use strict";
+    (() => {
+        var P = "0.2.7";
+        var T = {
+                HIGHLIGHT_COLOR: "#0079F2",
+                HIGHLIGHT_BG: "#0079F210",
+                ALLOWED_DOMAIN: ".replit.dev"
+            },
+            Q = `
+  [contenteditable] {
+    outline: none !important;
+  }
+
+  [contenteditable]:focus {
+    outline: none !important;
+  }
+`
+
+
+

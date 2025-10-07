@@ -1,0 +1,4 @@
+#!/bin/bash
+# Production run script for Replit deployment
+# This script replaces the need to modify .replit file
+NODE_ENV=production node production-start.js

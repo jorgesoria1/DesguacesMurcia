@@ -1,0 +1,30 @@
+INSTRUCCIONES PARA ARREGLAR EL DEPLOYMENT
+
+El problema es que el archivo .replit tiene comandos con 'dev' que activan el bloqueo de seguridad.
+
+CAMBIOS NECESARIOS EN .replit:
+
+1. Cambiar línea 2:
+   ANTES: run = "npm run dev"
+   DESPUÉS: run = "node start-production.js"
+
+2. Cambiar línea 12:
+   ANTES: run = ["sh", "-c", "npm run dev"]
+   DESPUÉS: run = ["node", "start-production.js"]
+
+3. Cambiar línea 36:
+   ANTES: args = "npm run dev"
+   DESPUÉS: args = "node start-production.js"
+
+4. Cambiar línea 46:
+   ANTES: args = "npm run dev"
+   DESPUÉS: args = "node start-production.js"
+
+5. Cambiar línea 55:
+   ANTES: args = "npm run dev"
+   DESPUÉS: args = "node start-production.js"
+
+ARCHIVOS CREADOS:
+- start-production.js (script de producción sin referencias a 'dev')
+
+NOTA: Necesitas hacer estos cambios manualmente en el archivo .replit porque no puedo editarlo directamente.

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scroll Behavior</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            height: 200vh; /* Hacer la página larga para poder hacer scroll */
+        }
+        .content {
+            background: #f0f0f0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .scroll-position {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-position" id="scrollPos">Scroll: 0px</div>
+    
+    <h1>Test de Scroll Behavior</h1>
+    
+    <div class="content">
+        <h2>Área de prueba</h2>
+        <p>Desplázate hacia abajo y luego prueba los botones:</p>
+        
+        <button class="test-button" onclick="testScrollToTop()">
+            📜 scrollToTop (smooth: true)
+        </button>
+        
+        <button class="test-button" onclick="testScrollToTopFast()">
+            📜 scrollToTop (smooth: false)
+        </button>
+        
+        <button class="test-button" onclick="simulatePagination()">
+            🔄 Simular Paginación
+        </button>
+    </div>
+
+    <!-- Contenido largo para poder hacer scroll -->
+    <div class="content">
+        <h3>Contenido de ejemplo</h3>
+        <p>Este es contenido de prueba para generar scroll...</p>
+    </div>
+    
+    <div class="content">
+        <h3>Más contenido</h3>
+        <p>Sigue desplazándote hacia abajo...</p>
+    </div>
+    
+    <div class="content">
+        <h3>Aún más contenido</h3>
+        <p>Ya deberías estar más abajo en la página...</p>
+    </div>
+    
+    <div class="content">
+        <h3>Final de página</h3>
+        <p>Ahora regresa arriba usando los botones!</p>
+    </div>
+
+    <script>
+        // Función igual a la del hook
+        const scrollToTop = (smooth = true) => {
+            console.log('📜 scrollToTop llamado manualmente - smooth:', smooth, 'posición actual:', window.scrollY);
+            
+            setTimeout(() => {
+                window.scrollTo({ 
+                    top: 0, 
+                    left: 0, 
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+                console.log('🔝 Scroll ejecutado, nueva posición:', window.scrollY);
+            }, 10);
+        };
+        
+        // Funciones de prueba
+        function testScrollToTop() {
+            scrollToTop(true);
+        }
+        
+        function testScrollToTopFast() {
+            scrollToTop(false);
+        }
+        
+        function simulatePagination() {
+            console.log('🔄 Simulando cambio de página en paginación...');
+            // Simular el comportamiento de handlePageChange
+            scrollToTop(true);
+        }
+        
+        // Mostrar posición actual
+        function updateScrollPosition() {
+            document.getElementById('scrollPos').textContent = `Scroll: ${window.scrollY}px`;
+        }
+        
+        window.addEventListener('scroll', updateScrollPosition);
+        updateScrollPosition();
+    </script>
+</body>
+</html>

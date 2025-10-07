@@ -1,0 +1,201 @@
+Te explico de forma detallada cómo se está realizando la importación de piezas en tu aplicación, analizando el código existente:
+
+1. Proceso de Importación de Piezas
+Servicio Principal: MetasyncImportService
+El proceso de importación se maneja principalmente en server/api/metasync-import-service.ts. El flujo es:
+
+Configuración inicial:
+Se lee la configuración de API activa desde apiConfig
+Se obtiene apiKey, companyId y channel
+Inicio de importación:
+async startImport(type: 'vehicles' | 'parts', fromDate?: Date): Promise<number>
+Crea un registro en importHistory con estado 'in_progress'
+Inicia el proceso en segundo plano
+2. Paginación y Obtención de Datos
+La paginación se maneja con estos parámetros:
+
+const BATCH_SIZE = 100; // Tamaño de lote
+let lastId = 0; // ID del último registro procesado
+let hasMore = true; // Bandera para continuar
+while (hasMore) {
+  const response = await axios.get(`${this.apiUrl}/RecuperarCambiosCanal`, {
+    headers: {
+      'apikey': this.apiKey,
+      'fecha': dateStr, // Formato DD/MM/YYYY HH:MM:SS
+      'lastid': lastId.toString(),
+      'offset': BATCH_SIZE.toString()
+    }
+  });
+  
+  // Procesar respuesta
+  const result = response.data;
+  const partsData = result.piezas;
+  
+  // Actualizar lastId para siguiente iteración
+  lastId = result.result_set?.lastId || 0;
+  
+  // Verificar si hay más registros
+  hasMore = result.result_set && partsCount > 0 && totalProcessed < result.result_set.total;
+}
+3. Procesamiento de Cada Pieza
+En processPartBatch():
+
+// Extraer datos de la pieza
+const refLocal = rawPart.refLocal !== undefined ? rawPart.refLocal : rawPart.RefLocal;
+const idVehiculo = rawPart.idVehiculo !== undefined ? rawPart.idVehiculo : rawPart.IdVehiculo;
+// Verificar si la pieza ya existe
+const existingParts = await db.select().from(parts).where(eq(parts.refLocal, refLocal));
+// Verificar si el vehículo existe
+const existingVehicles = await db.select().from(vehicles).where(eq(vehicles.idLocal, idVehiculo));
+const vehicleExists = existingVehicles.length > 0;
+4. Manejo de Precios y Decimales
+El manejo de precios es crítico:
+
+// Verificar precio
+const precio = rawPart.precio?.toString() || '0';
+const hasZeroPrice = this.isZeroPrice(precio);
+// Función para verificar precio cero o inválido
+private isZeroPrice(precio: string | number): boolean {
+  if (precio === null || precio === undefined) return true;
+  
+  const precioStr = String(precio).trim();
+  
+  // Verificar casos obvios de precio cero
+  if (precioStr === '' || precioStr === '0' || precioStr === '0.0' || 
+      precioStr === '0.00' || precioStr === '0,00' || precioStr === '-0' ||
+      precioStr === '-0.0' || precioStr === '-0.00') {
+    return true;
+  }
+  
+  try {
+    const precioNum = parseFloat(precioStr.replace(',', '.'));
+    
+    // Verificar si es NaN, cero, negativo o muy pequeño
+    if (isNaN(precioNum) || precioNum <= 0 || precioNum < 0.01) {
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    return true; // Si no se puede convertir, considerarlo como precio inválido
+  }
+}
+5. Reglas de Activación de Piezas
+REGLA CRÍTICA: Una pieza NUNCA puede estar activa si:
+
+Tiene precio cero o negativo
+No tiene vehículo asociado
+// Solo puede estar activa si: vehículo existe Y precio válido (> 0)
+activo: vehicleExists && !hasZeroPrice,
+isPendingRelation: !vehicleExists, // Marcar como pendiente si el vehículo no existe
+6. Relaciones Vehículo-Pieza
+Las relaciones se manejan en dos fases:
+
+Durante la importación:
+Si el vehículo existe: se activa la pieza (si tiene precio válido)
+Si no existe: se marca como isPendingRelation: true
+Después de importar vehículos:
+async processPendingRelations(): Promise<{ resolved: number }> {
+  const pendingParts = await db.select().from(parts).where(eq(parts.isPendingRelation, true));
+  
+  for (const part of pendingParts) {
+    const vehicles = await db.select().from(vehicles).where(eq(vehicles.idLocal, part.idVehiculo));
+    
+    if (vehicles.length > 0) {
+      const hasZeroPrice = this.isZeroPrice(part.precio || '0');
+      
+      await db.update(parts).set({
+        activo: !hasZeroPrice, // Solo activar si no tiene precio cero
+        isPendingRelation: false,
+        fechaActualizacion: new Date()
+      }).where(eq(parts.id, part.id));
+    }
+  }
+}
+7. Desactivación de Piezas con Precio Cero
+Al final del proceso se ejecuta una limpieza específica:
+
+const zeroPriceResult = await db.execute(sql`
+  UPDATE ${parts}
+  SET 
+    ${parts.activo} = false,
+    ${parts.fechaActualizacion} = NOW()
+  WHERE
+    ${parts.activo} = true
+    AND (
+      ${parts.precio} IS NULL
+      OR ${parts.precio} = ''
+      OR ${parts.precio} = '0'
+      OR ${parts.precio} = '0.0' 
+      OR ${parts.precio} = '0.00'
+      OR ${parts.precio} = '0,00'
+      OR ${parts.precio} = '-0.01'
+      OR TRIM(${parts.precio}) = ''
+      OR TRIM(${parts.precio}) = '0'
+      OR TRIM(${parts.precio}) = '0.0'
+      OR TRIM(${parts.precio}) = '0.00'
+      OR TRIM(${parts.precio}) = '0,00'
+      OR TRIM(${parts.precio}) = '-0.01'
+      OR (
+        ${parts.precio} ~ '^-?[0-9]+([.,][0-9]+)?$' 
+        AND CAST(REPLACE(${parts.precio}, ',', '.') AS DECIMAL) <= 0
+      )
+    )
+`);
+8. Estructura de Datos de la Pieza
+Los datos que se guardan para cada pieza incluyen:
+
+const partData = {
+  refLocal,
+  idVehiculo, // Referencia al idLocal del vehículo
+  idEmpresa: rawPart.idEmpresa || this.companyId,
+  codFamilia: rawPart.codFamilia || '',
+  descripcionFamilia: rawPart.descripcionFamilia || '',
+  codArticulo: rawPart.codArticulo || '',
+  descripcionArticulo: rawPart.descripcionArticulo || '',
+  codVersion: rawPart.codVersion || '',
+  refPrincipal: rawPart.refPrincipal || '',
+  anyoInicio: rawPart.anyoInicio || null,
+  anyoFin: rawPart.anyoFin || null,
+  puertas: rawPart.puertas || 0,
+  rvCode: rawPart.rvCode || '',
+  precio: precio, // Como string
+  anyoStock: rawPart.anyoStock || 0,
+  peso: rawPart.peso?.toString() || '0',
+  ubicacion: rawPart.ubicacion || 0,
+  observaciones: rawPart.observaciones || '',
+  reserva: rawPart.reserva || 0,
+  tipoMaterial: rawPart.tipoMaterial || 0,
+  imagenes: Array.isArray(rawPart.imagenes) ? rawPart.imagenes : 
+          (rawPart.imagenes ? [rawPart.imagenes] : ['https://via.placeholder.com/150']),
+  activo: vehicleExists && !hasZeroPrice,
+  isPendingRelation: !vehicleExists,
+  fechaActualizacion: new Date()
+};
+9. Control de Progreso
+El progreso se actualiza constantemente:
+
+await db.update(importHistory).set({
+  progress,
+  totalItems: result.result_set?.total || totalProcessed,
+  processedItems: totalProcessed,
+  newItems: totalInserted,
+  updatedItems: totalUpdated,
+  errors: errors.slice(0, 100), // Limitar cantidad de errores guardados
+  errorCount: errors.length,
+  details: { pendingParts: pendingPartsCount },
+  lastUpdated: new Date()
+}).where(eq(importHistory.id, importId));
+10. Finalización del Proceso
+Al terminar:
+
+Se procesan las relaciones pendientes
+Se actualiza el estado de todas las piezas
+Se desactivan las de precio cero
+Se marca la importación como completada
+Este sistema asegura que:
+
+Solo las piezas con precios válidos y vehículos existentes estén activas
+Los precios se manejan correctamente como strings para preservar decimales
+Las relaciones se crean cuando ambos elementos (vehículo y pieza) existen
+El proceso es robusto ante errores y puede continuar parcialmente

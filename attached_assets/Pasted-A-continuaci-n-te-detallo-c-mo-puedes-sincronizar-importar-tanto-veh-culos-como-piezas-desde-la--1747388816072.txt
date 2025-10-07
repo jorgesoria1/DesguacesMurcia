@@ -1,0 +1,235 @@
+A continuación te detallo cómo puedes sincronizar (“importar”) tanto vehículos como piezas desde la API de Metasync y cómo establecer la relación entre ambas entidades en tu sistema:
+
+1. Endpoints clave
+Recurso	Ruta	Qué devuelve
+RecuperarCambiosCanal	GET https://apis.metasync.com/Almacen/RecuperarCambiosCanal	Array de vehículos y de piezasdesde una fecha dada
+RecuperarCambiosVehiculosCanal	GET https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanal	Array de vehículos desde una fecha dada
+RecuperarCambiosCanalEmpresa(opcional)	GET https://apis.metasync.com/Almacen/RecuperarCambiosCanalEmpresa	Igual que RecuperarCambiosCanal, filtrado por empresa
+RecuperarCambiosVehiculosCanalEmpresa	GET https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanalEmpresa	Igual que RecuperarCambiosVehiculosCanal, filtrado por empresa
+Todos requieren en Headers:
+* apikey: tu clave de API.
+* fecha: fecha/hora ISO (“YYYY-MM-DDThh:mm:ss”) desde la que quieres cambios.
+* lastid: para paginación, inicialmente 0.
+* offset: cantidad de registros por página (máximo 1000).
+* [idempresa]: sólo en endpoints “Empresa”.
+
+2. Estructura de los datos
+Vehículo
+json
+CopiarEditar
+{
+  "idLocal": 50937,
+  "codigo": "...",
+  "fechaMod": "2024-06-04T01:17:26",
+  …  
+}
+* idLocal: identificador único del vehículo en el canal. 
+Pieza
+json
+CopiarEditar
+{
+  "refLocal": 1194358,
+  "idVehiculo": -1350842571,
+  "codArticulo": "0100001",
+  "descripcionArticulo": "NO IDENTIFICADO",
+  "fechaMod": "2024-10-21T16:28:53",
+  …  
+}
+* refLocal: ID único de la pieza.
+* idVehiculo: identificador local del vehículo al que pertenece (coincide con idLocal del vehículo). 
+
+3. Flujo de importación sugerido
+1. Inicializar paginación pseudo CopiarEditar   lastid = 0
+2. offset = 1000
+3.   
+4. Llamar a RecuperarCambiosCanal http CopiarEditar   GET /Almacen/RecuperarCambiosCanal
+5. Headers:
+6.   apikey: TU_APIKEY
+7.   fecha: 2025-05-01T00:00:00
+8.   lastid: {{lastid}}
+9.   offset: {{offset}}
+10.   
+11. Procesar respuesta
+    * Por cada vehículo en data.vehiculos:
+        * Insertar/Actualizar en tu tabla vehiculos usando idLocal como clave.
+    * Por cada pieza en data.piezas:
+        * Insertar/Actualizar en tu tabla piezas usando refLocal como clave.
+        * Almacenar idVehiculo para la relación (clave foránea).
+12. Actualizar paginación pseudo CopiarEditar   lastid = response.data.Paginacion.lastid
+13. si response.data.Paginacion.count < offset: fin del bucle
+14. sino: repetir desde el paso 2
+15.   
+16. (Opcional) Para sincronizaciones por empresa, usar RecuperarCambiosCanalEmpresa o RecuperarCambiosVehiculosCanalEmpresa, añadiendo el header idempresa.
+
+4. Relación piezas ↔ vehículos
+* La pieza contiene el campo idVehiculo, que es el mismo valor que el vehículo expone en idLocal.
+* En tu base de datos: sql CopiarEditar   ALTER TABLE piezas
+*   ADD COLUMN vehiculo_id INT;
+* 
+* -- Al importar:
+* INSERT INTO piezas(refLocal, descripción, ..., vehiculo_id)
+*   VALUES (..., pieza.codArticulo, ..., pieza.idVehiculo);
+*   
+* De este modo, puedes hacer joins: sql CopiarEditar   SELECT p.*, v.*
+*   FROM piezas p
+*   JOIN vehiculos v
+*     ON p.vehiculo_id = v.idLocal;
+*   
+
+5. Buenas prácticas
+* Fechas: almacena siempre la última fecha de sincronización (fechaMod más alta) para la siguiente llamada.
+* Manejo de errores: controla códigos 400, 500, 503 y vuelve a reintentar o registrar.
+* Offset dinámico: si tienes pocos registros, reduce offset para optimizar.
+* Filtrado por empresa: si gestionas varios canales, usa los endpoints “Empresa” para datos aislados.
+Con este esquema tendrás un proceso robusto de importación incremental de vehículos y piezas, y la relación entre ellos plenamente definida.
+Fuentes
+
+o4-mini-high
+Tú dijiste:
+revisa los ficheros que te he subido y revisa de nuevo la documentación para establecer cómo puedo importar vehículos a una base de datos, importar piezas y que estén relacionadas
+
+ChatGPT Plus
+
+Pensó durante 51 segundos
+1. Esquema mínimo de base de datos
+sql
+CopiarEditar
+CREATE TABLE vehiculos (
+    id_local        INT PRIMARY KEY,          -- idLocal
+    id_empresa      INT NOT NULL,
+    fecha_mod       TIMESTAMP,
+    codigo          VARCHAR(20),
+    bastidor        VARCHAR(50),
+    matricula       VARCHAR(15),
+    color           VARCHAR(30),
+    kilometraje     INT,
+    anyo_vehiculo   INT,
+    codigo_motor    VARCHAR(40),
+    codigo_cambio   VARCHAR(40),
+    observaciones   TEXT,
+    cod_marca       VARCHAR(10),
+    nombre_marca    VARCHAR(80),
+    cod_modelo      VARCHAR(20),
+    nombre_modelo   VARCHAR(120),
+    cod_version     VARCHAR(40),
+    nombre_version  VARCHAR(120),
+    combustible     VARCHAR(30),
+    puertas         INT,
+    potencia_hp     INT,
+    potencia_kw     INT,
+    cilindrada      INT,
+    transmision     VARCHAR(120),
+    alimentacion    VARCHAR(120),
+    num_marchas     INT,
+    ktype           VARCHAR(20)
+    -- …añade cualquier campo que quieras conservar
+);
+
+CREATE TABLE piezas (
+    ref_local       INT PRIMARY KEY,          -- refLocal
+    id_empresa      INT NOT NULL,
+    id_vehiculo     INT NOT NULL,             -- idVehiculo
+    fecha_mod       TIMESTAMP,
+    cod_familia     VARCHAR(10),
+    descripcion_familia VARCHAR(120),
+    cod_articulo    VARCHAR(20),
+    descripcion_articulo VARCHAR(120),
+    cod_version     VARCHAR(40),
+    ref_principal   VARCHAR(120),
+    precio          DECIMAL(10,2),
+    peso            INT,
+    ubicacion       VARCHAR(40),
+    observaciones   TEXT,
+    reserva         INT,
+    tipo_material   INT,
+    cod_almacen     VARCHAR(10),
+    FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_local)
+);
+CREATE INDEX idx_piezas_idvehiculo ON piezas(id_vehiculo);
+Los nombres de columna siguen exactamente la nomenclatura que devuelve la API para evitar transformaciones innecesarias.
+
+2. Endpoints que vas a usar
+Caso de uso	Endpoint	Devuelve
+Sólo vehículos	GET /Almacen/RecuperarCambiosVehiculosCanal	data.vehiculos + paginación
+Vehículos y piezas al mismo tiempo	GET /Almacen/RecuperarCambiosCanal	data.vehiculos y data.piezas
+Filtrar por empresa	Añade el header idempresa y usa las variantes …CanalEmpresa	
+Cabeceras requeridas en todos los casos
+* apikey – tu clave de canal
+* fecha – ISO (ej. 2025-05-01T00:00:00)
+* lastid – 0 la primera vez, después el último recibido
+* offset – registros por página (1 – 1000)
+
+3. Pasos de la importación (carga inicial o incremental)
+pseudo
+CopiarEditar
+lastid = 0
+fecha  = ultima_fecha_sincronizada       # ‘1900-01-01T00:00:00’ si es la primera
+REPEAT
+    resp = GET RecuperarCambiosCanal(fecha, lastid, offset=1000)
+    BEGIN TRANSACTION
+        # 1️⃣  Vehículos
+        FOR cada vehiculo IN resp.data.vehiculos:
+            UPSERT vehiculos SET … WHERE id_local = vehiculo.idLocal
+
+        # 2️⃣  Piezas
+        FOR cada pieza IN resp.data.piezas:
+            UPSERT piezas SET … WHERE ref_local = pieza.refLocal
+            # ‘id_vehiculo’ = pieza.idVehiculo  🔗
+    COMMIT
+    lastid = resp.result_set.lastId
+UNTIL resp.result_set.count < 1000
+guardar(resp.data.vehiculos.max(fechaMod), lastid)
+La transacción asegura que piezas y vehículos quedan siempre en sincronía.
+
+4. Relación pieza → vehículo
+* Cada pieza lleva idVehiculo, “identificador local del vehículo al que pertenece” (doc. de clase PiezaExport) .
+* Ese valor se corresponde con idLocal en el objeto vehículo .
+* En la tabla piezas lo guardamos como id_vehiculo y lo marcamos como clave foránea. sql CopiarEditar   SELECT p.ref_local, v.codigo, v.nombre_modelo
+*   FROM piezas p
+*   JOIN vehiculos v ON v.id_local = p.id_vehiculo;
+*   
+Nota sobre los números negativos En los JSON de ejemplo los idVehiculo aparecen como enteros negativos mientras los idLocal son positivos. La documentación indica que ambos identifican al mismo vehículo; Metasync suele emplear un hash interno cuando el vehículo todavía no se ha insertado en tu inventario. En la práctica:
+1. Procesa siempre primero vehículos.
+2. Si al insertar una pieza no existe su vehículo, registra en log y re-intenta en el siguiente ciclo (normalmente el vehículo llega en la misma o siguiente página).
+
+5. Carga incremental diaria (sugerida)
+1. Guarda en tu tabla de control: text CopiarEditar   ultima_fecha_sync    lastId_vehiculos   lastId_piezas
+2.   
+3. Programa un job cada N minutos (o noche):
+    * fecha = ultima_fecha_sync
+    * lastid = 0
+    * Ejecuta el bucle de la sección 3.
+4. Al terminar, actualiza ultima_fecha_sync con la mayor fechaMod recibida.
+Con este patrón solo descargas lo que cambió desde la última ejecución; la API ya te da fechaMod en todos los registros .
+
+6. Buenas prácticas adicionales
+Tema	Recomendación
+Paginación	Mantén offset=1000 mientras count=1000; cuando baje, has llegado al final.
+Índices	• vehiculos(id_empresa) • piezas(id_empresa) • piezas(id_vehiculo)
+Integridad	Usa ON UPDATE/DELETE CASCADE si eliminas vehículos.
+Errores HTTP	429 / 503 ⇒ espera exponencial; 400/500 ⇒ registra y revisa.
+Carga inicial	Empieza con un fecha muy antigua para traer todo el histórico.
+Compresión	Activa Accept-Encoding: gzip para acelerar la descarga.
+Filtrado por empresa	Si tu canal opera varios centros, sincroniza cada uno con sus endpoints “…Empresa” en paralelo para reducir tráfico innecesario.
+
+7. Ejemplo en Python (requests)
+python
+CopiarEditar
+import requests, os, itertools
+
+API = "https://apis.metasync.com/Almacen/RecuperarCambiosCanal"
+HEADERS = {
+    "apikey": os.getenv("METASYNC_KEY"),
+    "fecha":  os.getenv("FECHA_SYNC"),   # p.e. '2025-05-01T00:00:00'
+    "lastid": "0",
+    "offset": "1000"
+}
+
+while True:
+    r = requests.get(API, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    data = r.json()["data"]
+
+    for v in data["vehiculos"]:
+        upsert_vehiculo(v)          # tu lógica DAL
+    for p in data["piezas"]:

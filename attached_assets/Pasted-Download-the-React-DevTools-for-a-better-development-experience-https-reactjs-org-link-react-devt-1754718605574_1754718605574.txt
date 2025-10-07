@@ -1,0 +1,33 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+Parts.tsx:200 📱 Mobile detection (Parts): Object
+Parts.tsx:240 🔄 PARTS: Saltando actualización durante carga inicial
+Parts.tsx:245 🔄 PARTS: Aplicando filtros internamente (URL limpia): Object
+/api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Entender este error
+App.tsx:283 ✅ Chatbot Voiceflow cargado correctamente
+bundle.mjs:233 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+bundle.mjs:520 voiceflow webchat v2.98.0
+PartDetail.tsx:126 🔧 DEBUG PartDetail data structure: Object
+PartDetail.tsx:126 🔧 DEBUG PartDetail data structure: Object
+PartDetail.tsx:131 🔧 Updating SEO with data: Object
+dynamic-seo.ts:72 🔧 SEO Generation - Part fields: Object
+dynamic-seo.ts:10 🔧 Updating page SEO with: Object
+dynamic-seo.ts:14 ✅ Title updated to: FARO DERECHO LEXUS RX (AGL20) (OEM: 0020005) (Ref: 2173418)
+dynamic-seo.ts:49 Updating existing meta tag: name="description"
+dynamic-seo.ts:53 ✅ Meta tag updated: name="description" content="Compra FARO DERECHO para LEXUS RX (AGL20) online en Desguace Murcia por 620€. Garantía 3 meses y envío península."
+dynamic-seo.ts:18 ✅ Meta description updated
+dynamic-seo.ts:49 Updating existing meta tag: property="og:title"
+dynamic-seo.ts:53 ✅ Meta tag updated: property="og:title" content="FARO DERECHO LEXUS RX (AGL20) (OEM: 0020005) (Ref: 2173418)"
+dynamic-seo.ts:49 Updating existing meta tag: property="og:description"
+dynamic-seo.ts:53 ✅ Meta tag updated: property="og:description" content="Compra FARO DERECHO para LEXUS RX (AGL20) online en Desguace Murcia por 620€. Garantía 3 meses y envío península."
+dynamic-seo.ts:49 Updating existing meta tag: property="og:url"
+dynamic-seo.ts:53 ✅ Meta tag updated: property="og:url" content="https://271a4945-5aed-4283-8175-5a05de5ef28c-00-6w7452awe2o4.worf.replit.dev/piezas/faro-derecho-lexus-rx-agl20-2173418"
+dynamic-seo.ts:24 ✅ Open Graph tags updated
+dynamic-seo.ts:49 Updating existing meta tag: property="og:image"
+dynamic-seo.ts:53 ✅ Meta tag updated: property="og:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"
+dynamic-seo.ts:49 Updating existing meta tag: name="twitter:title"
+dynamic-seo.ts:53 ✅ Meta tag updated: name="twitter:title" content="FARO DERECHO LEXUS RX (AGL20) (OEM: 0020005) (Ref: 2173418)"
+dynamic-seo.ts:49 Updating existing meta tag: name="twitter:description"
+dynamic-seo.ts:53 ✅ Meta tag updated: name="twitter:description" content="Compra FARO DERECHO para LEXUS RX (AGL20) online en Desguace Murcia por 620€. Garantía 3 meses y envío península."
+dynamic-seo.ts:33 ✅ Twitter Card tags updated
+dynamic-seo.ts:49 Updating existing meta tag: name="twitter:image"
+dynamic-seo.ts:53 ✅ Meta tag updated: name="twitter:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"

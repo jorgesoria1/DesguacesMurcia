@@ -1,0 +1,3 @@
+{
+  "code": "<script type=\"text/javascript\">\n  (function(d, t) {\n      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];\n      v.onload = function() {\n        window.voiceflow.chat.load({\n          verify: { projectID: '67e8ead20683bc32991970f2' },\n          url: 'https://general-runtime.voiceflow.com',\n          versionID: 'production',\n          voice: {\n            url: \"https://runtime-api.voiceflow.com\"\n          }\n        });\n      }\n      v.src = \"https://cdn.voiceflow.com/widget-next/bundle.mjs\"; v.type = \"text/javascript\"; s.parentNode.insertBefore(v, s);\n  })(document, 'script');\n</script>"
+}

@@ -1,0 +1,350 @@
+import { storage } from '../storage';
+import { metasyncApi } from '../api/metasync';
+import { ImportSchedule, InsertImportHistory } from '@shared/schema';
+import { ApiConfiguration, MetasyncVehicle, MetasyncVehicleNew, MetasyncPart } from '@shared/types';
+
+// Tipo para las tareas programadas
+type ScheduledTask = {
+  interval: NodeJS.Timeout;
+  schedule: ImportSchedule;
+};
+
+// Clase para gestionar las tareas programadas
+export class ImportScheduler {
+  private tasks: Map<number, ScheduledTask> = new Map();
+  private isInitialized = false;
+
+  /**
+   * Inicializa el programador
+   */
+  async initialize() {
+    if (this.isInitialized) {
+      return;
+    }
+
+    try {
+      // Obtener la configuración de la API
+      const apiConfig = await storage.getApiConfig();
+      if (apiConfig) {
+        metasyncApi.setConfig({
+          apiKey: apiConfig.apiKey,
+          companyId: apiConfig.companyId,
+          channel: apiConfig.channel
+        });
+      }
+
+      // Cargar las programaciones existentes
+      const schedules = await storage.getImportSchedules();
+      for (const schedule of schedules) {
+        if (schedule.active) {
+          this.scheduleTask(schedule);
+        }
+      }
+
+      this.isInitialized = true;
+      console.log('Programador de importaciones inicializado');
+    } catch (error) {
+      console.error('Error al inicializar el programador:', error);
+    }
+  }
+
+  /**
+   * Programa una tarea
+   */
+  scheduleTask(schedule: ImportSchedule) {
+    // Calcular el intervalo en milisegundos
+    const intervalMs = this.getIntervalMilliseconds(schedule.frequency);
+    
+    // Si ya existe una tarea con este ID, eliminarla
+    if (this.tasks.has(schedule.id)) {
+      this.unscheduleTask(schedule.id);
+    }
+
+    // Crear la nueva tarea
+    const interval = setInterval(() => {
+      this.executeTask(schedule);
+    }, intervalMs);
+
+    // Guardar la tarea
+    this.tasks.set(schedule.id, { interval, schedule });
+    
+    console.log(`Tarea programada: ${schedule.type} cada ${schedule.frequency}`);
+  }
+
+  /**
+   * Elimina una tarea programada
+   */
+  unscheduleTask(scheduleId: number) {
+    const task = this.tasks.get(scheduleId);
+    if (task) {
+      clearInterval(task.interval);
+      this.tasks.delete(scheduleId);
+      console.log(`Tarea desprogramada: ${scheduleId}`);
+    }
+  }
+
+  /**
+   * Ejecuta una tarea específica
+   * @param schedule Programación de la tarea
+   * @param options Opciones adicionales de importación
+   */
+  async executeTask(schedule: ImportSchedule, options?: { fromDate?: Date; fullImport?: boolean }) {
+    console.log(`Ejecutando tarea: ${schedule.type}${options?.fullImport ? ' (importación completa)' : ''}`);
+
+    try {
+      // Actualizar la última ejecución en la base de datos
+      await storage.updateImportSchedule(schedule.id, {
+        lastRun: new Date()
+      });
+
+      // Crear un registro de historial de importación
+      const historyRecord: InsertImportHistory = {
+        type: schedule.type,
+        status: 'processing',
+        totalItems: 0,
+        newItems: 0,
+        updatedItems: 0,
+        errors: '',
+        details: options?.fullImport ? { fullImport: true } : {},
+        startTime: new Date()
+      };
+
+      const history = await storage.createImportHistory(historyRecord);
+
+      let results: any;
+      
+      // Ejecutar la importación según el tipo
+      switch (schedule.type) {
+        case 'vehicles':
+          results = await this.importVehicles(options);
+          break;
+        case 'parts':
+          results = await this.importParts(options);
+          break;
+        case 'all':
+        default:
+          // Importar vehículos y piezas
+          const vehicleResults = await this.importVehicles(options);
+          const partResults = await this.importParts(options);
+          
+          results = {
+            status: this.getCombinedStatus(vehicleResults.status, partResults.status),
+            totalItems: vehicleResults.totalItems + partResults.totalItems,
+            newItems: vehicleResults.newItems + partResults.newItems,
+            updatedItems: vehicleResults.updatedItems + partResults.updatedItems,
+            errors: [vehicleResults.errors, partResults.errors].filter(Boolean).join('; '),
+            details: {
+              vehicles: vehicleResults,
+              parts: partResults,
+              ...(options?.fullImport ? { fullImport: true } : {})
+            }
+          };
+          break;
+      }
+
+      // Actualizar el registro de historial
+      await storage.updateImportHistory(history.id, {
+        status: results.status,
+        totalItems: results.totalItems,
+        newItems: results.newItems,
+        updatedItems: results.updatedItems,
+        errors: results.errors,
+        details: results.details,
+        endTime: new Date()
+      });
+
+      console.log(`Tarea completada: ${schedule.type} - Estado: ${results.status}`);
+    } catch (error) {
+      console.error(`Error al ejecutar tarea ${schedule.type}:`, error);
+      
+      // Intentar actualizar el historial con el error
+      try {
+        const histories = await storage.getImportHistory(1);
+        if (histories.length > 0) {
+          await storage.updateImportHistory(histories[0].id, {
+            status: 'failed',
+            errors: error instanceof Error ? error.message : 'Error desconocido',
+            endTime: new Date()
+          });
+        }
+      } catch (updateError) {
+        console.error('Error al actualizar el historial:', updateError);
+      }
+    }
+  }
+
+  /**
+   * Importa vehículos desde la API
+   * @param options Opciones de importación
+   * @param options.fromDate Fecha desde la que importar
+   * @param options.fullImport Si es true, importa todos los vehículos sin filtrar por fecha
+   */
+  async importVehicles(options?: { fromDate?: Date; fullImport?: boolean }): Promise<{
+    status: string;
+    totalItems: number;
+    newItems: number;
+    updatedItems: number;
+    errors: string;
+    details?: any;
+  }> {
+    try {
+      // Fecha desde la que importar (30 días atrás por defecto)
+      const fromDate = options?.fromDate || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - 30);
+        return date;
+      })();
+      
+      // Flag para indicar si es importación completa
+      const fullImport = options?.fullImport || false;
+      
+      console.log(`Iniciando importación de vehículos. Modo: ${fullImport ? 'completa' : `desde ${fromDate.toISOString()}`}`);
+      
+      let newVehicles = 0;
+      let updatedVehicles = 0;
+      
+      // Paso 1: Intentar obtener vehículos directamente del endpoint de vehículos
+      console.log(`Solicitando vehículos usando endpoint principal`);
+      let vehicles: any[] = [];
+      let isNewFormat = false;
+      
+      try {
+        // Si es importación completa, usar método getVehicles
+        if (fullImport) {
+          console.log('Usando getVehicles para importación completa');
+          const response = await metasyncApi.getVehicles(1000);
+          isNewFormat = !!response?.vehiculos;
+          vehicles = (isNewFormat ? response?.vehiculos : response?.elements) || [];
+          console.log(`Respuesta de getVehicles: ${vehicles.length} vehículos`);
+        } else {
+          console.log(`Usando getVehicleChanges para importación incremental`);
+          const response = await metasyncApi.getVehicleChanges(fromDate, 0);
+          isNewFormat = !!response?.vehiculos;
+          vehicles = (isNewFormat ? response?.vehiculos : response?.elements) || [];
+          console.log(`Respuesta de getVehicleChanges: ${vehicles.length} vehículos`);
+        }
+      } catch (error) {
+        console.error('Error al obtener vehículos directamente:', error);
+      }
+      
+      // Paso 2: Si no hay vehículos, intentar recuperarlos a través del endpoint de piezas
+      if (vehicles.length === 0) {
+        console.log('No se encontraron vehículos directamente. Intentando a través del endpoint de piezas...');
+        try {
+          const partsResponse = await metasyncApi.getParts(1000);
+          
+          if (partsResponse.vehiculos && partsResponse.vehiculos.length > 0) {
+            console.log(`Encontrados ${partsResponse.vehiculos.length} vehículos a través del endpoint de piezas`);
+            vehicles = partsResponse.vehiculos;
+            isNewFormat = true; // Las piezas siempre devuelven el formato nuevo
+          } else {
+            console.log('No se encontraron vehículos a través del endpoint de piezas');
+          }
+        } catch (error) {
+          console.error('Error al intentar obtener vehículos a través de piezas:', error);
+        }
+      }
+      
+      console.log(`Procesando ${vehicles.length} vehículos. Formato: ${isNewFormat ? 'nuevo' : 'antiguo'}`);
+      
+      // Paso 3: Procesar los vehículos
+      if (vehicles.length > 0) {
+        for (const vehicle of vehicles) {
+          try {
+            // Obtener idLocal basado en el formato
+            const idLocalValue = isNewFormat 
+              ? (vehicle as MetasyncVehicleNew).idLocal 
+              : (vehicle as MetasyncVehicle).IdLocal;
+              
+            if (idLocalValue === undefined) {
+              console.warn(`Vehículo sin idLocal válido. Saltando.`);
+              continue;
+            }
+            
+            // Verificar si ya existe
+            const existingVehicles = await storage.getVehicles({
+              idLocal: idLocalValue, 
+              idEmpresa: metasyncApi.getConfig()?.companyId || 0
+            });
+            
+            // Preparar datos para guardar
+            let vehicleData;
+            
+            if (isNewFormat) {
+              // Formato nuevo
+              const newFormatVehicle = vehicle as MetasyncVehicleNew;
+              vehicleData = {
+                idLocal: newFormatVehicle.idLocal,
+                idEmpresa: metasyncApi.getConfig()?.companyId || 0,
+                descripcion: `${newFormatVehicle.nombreMarca || ''} ${newFormatVehicle.nombreModelo || ''} ${newFormatVehicle.nombreVersion || ''}`.trim(),
+                marca: newFormatVehicle.nombreMarca || newFormatVehicle.codMarca || '',
+                modelo: newFormatVehicle.nombreModelo || newFormatVehicle.codModelo || '',
+                version: newFormatVehicle.nombreVersion || newFormatVehicle.codVersion || '',
+                anyo: newFormatVehicle.anyoVehiculo || newFormatVehicle.anyoInicio || 0,
+                combustible: newFormatVehicle.combustible || '',
+                bastidor: newFormatVehicle.bastidor || '',
+                matricula: newFormatVehicle.matricula || '',
+                color: newFormatVehicle.color || '',
+                kilometraje: newFormatVehicle.kilometraje || 0,
+                potencia: newFormatVehicle.potenciaHP || 0,
+                imagenes: newFormatVehicle.urlsImgs || []
+              };
+            } else {
+              // Formato antiguo
+              const oldFormatVehicle = vehicle as MetasyncVehicle;
+              vehicleData = {
+                idLocal: oldFormatVehicle.IdLocal,
+                idEmpresa: metasyncApi.getConfig()?.companyId || 0,
+                descripcion: `${oldFormatVehicle.Marca || ''} ${oldFormatVehicle.Modelo || ''} ${oldFormatVehicle.Version || ''}`.trim(),
+                marca: oldFormatVehicle.Marca || '',
+                modelo: oldFormatVehicle.Modelo || '',
+                version: oldFormatVehicle.Version || '',
+                anyo: oldFormatVehicle.AnyoVehiculo || 0,
+                combustible: oldFormatVehicle.Combustible || '',
+                bastidor: oldFormatVehicle.Bastidor || '',
+                matricula: oldFormatVehicle.Matricula || '',
+                color: oldFormatVehicle.Color || '',
+                kilometraje: oldFormatVehicle.Kilometraje || 0,
+                potencia: oldFormatVehicle.Potencia || 0,
+                imagenes: oldFormatVehicle.UrlsImgs || []
+              };
+            }
+            
+            // Guardar/actualizar vehículo
+            if (existingVehicles.length > 0) {
+              await storage.updateVehicle(existingVehicles[0].id, vehicleData);
+              updatedVehicles++;
+            } else {
+              await storage.createVehicle(vehicleData);
+              newVehicles++;
+            }
+          } catch (err) {
+            console.error(`Error al procesar vehículo:`, err);
+          }
+        }
+      }
+      
+      return {
+        status: 'completed',
+        totalItems: vehicles.length,
+        newItems: newVehicles,
+        updatedItems: updatedVehicles,
+        errors: '',
+        details: {
+          totalVehicles: vehicles.length
+        }
+      };
+    } catch (error) {
+      console.error('Error en importación de vehículos:', error);
+      return {
+        status: 'failed',
+        totalItems: 0,
+        newItems: 0,
+        updatedItems: 0,
+        errors: error instanceof Error ? error.message : 'Error desconocido',
+        details: {}
+      };
+    }
+  }
+        
+        // Procesar los vehículos

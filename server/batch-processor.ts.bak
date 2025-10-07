@@ -1,0 +1,566 @@
+// Este archivo está obsoleto y ha sido reemplazado por batch-processor-new.ts
+// Por favor, importa el nuevo procesador de lotes desde batch-processor-new.ts
+export * from './batch-processor-new';
+
+/**
+ * Clase para manejo eficiente de lotes de datos en la importación
+ */
+export class BatchProcessor {
+  /**
+   * Procesa un lote de vehículos en una sola operación de base de datos
+   */
+  async processVehicleBatch(vehicleBatch: (MetasyncVehicle | MetasyncVehicleNew)[], isNewFormat: boolean): Promise<{
+    inserted: number;
+    errors: string[];
+  }> {
+    const errors: string[] = [];
+    const vehiclesToInsert: InsertVehicle[] = [];
+    
+    try {
+      console.log(`Procesando lote de ${vehicleBatch.length} vehículos. Formato: ${isNewFormat ? 'nuevo' : 'antiguo'}`);
+      
+      // Mostrar ejemplo de los datos que estamos recibiendo (solo para debug)
+      if (vehicleBatch.length > 0) {
+        const firstVehicle = vehicleBatch[0];
+        console.log(`EJEMPLO DE DATOS: Propiedades disponibles: ${Object.keys(firstVehicle).slice(0, 10).join(', ')}`);
+      }
+      
+      // Preparar datos para inserción masiva
+      for (const vehicleData of vehicleBatch) {
+        try {
+          // Extraer campos de datos independientemente del formato
+          // Esta implementación busca los datos en todas las variantes posibles de nombres de campo
+          const idLocal = (vehicleData as any).idLocal || (vehicleData as any).IdLocal || 0;
+          const idEmpresa = (vehicleData as any).idEmpresa || (vehicleData as any).IdEmpresa || 1236;
+          
+          // Buscar marca/modelo/versión en todos los posibles nombres de campo
+          const marca = (vehicleData as any).nombreMarca || (vehicleData as any).NombreMarca || 
+                      (vehicleData as any).marca || (vehicleData as any).Marca || 'Desconocida';
+          
+          const modelo = (vehicleData as any).nombreModelo || (vehicleData as any).NombreModelo || 
+                       (vehicleData as any).modelo || (vehicleData as any).Modelo || 'Desconocido';
+          
+          const version = (vehicleData as any).nombreVersion || (vehicleData as any).NombreVersion || 
+                        (vehicleData as any).version || (vehicleData as any).Version || 'Desconocida';
+          
+          // Año y campos adicionales
+          const anyo = (vehicleData as any).anyoVehiculo || (vehicleData as any).AnyoVehiculo || 
+                     (vehicleData as any).anyo || 0;
+          
+          const combustible = (vehicleData as any).combustible || (vehicleData as any).Combustible || '';
+          const bastidor = (vehicleData as any).bastidor || (vehicleData as any).Bastidor || '';
+          const matricula = (vehicleData as any).matricula || (vehicleData as any).Matricula || '';
+          const color = (vehicleData as any).color || (vehicleData as any).Color || '';
+          const kilometraje = (vehicleData as any).kilometraje || (vehicleData as any).Kilometraje || 0;
+          const potencia = (vehicleData as any).potenciaHP || (vehicleData as any).PotenciaHP || 
+                         (vehicleData as any).potencia || (vehicleData as any).Potencia || 0;
+          const puertas = (vehicleData as any).puertas || (vehicleData as any).Puertas || null;
+          
+          // Crear descripción garantizando que nunca sea null
+          const descripcion = `${marca} ${modelo} ${version}${anyo ? ` (${anyo})` : ''}`.trim() 
+                          || `Vehículo ID ${idLocal}`;
+          
+          // Garantizar que imagenes sea siempre un array válido (nunca null)
+          let imagenes: string[] = [];
+          
+          // Buscar imágenes en todas las variantes posibles de nombres de campo
+          if (Array.isArray((vehicleData as any).urlsImgs) && (vehicleData as any).urlsImgs.length > 0) {
+            imagenes = (vehicleData as any).urlsImgs;
+          } else if (Array.isArray((vehicleData as any).UrlsImgs) && (vehicleData as any).UrlsImgs.length > 0) {
+            imagenes = (vehicleData as any).UrlsImgs;
+          } else if (typeof (vehicleData as any).urlsImgs === 'string' && (vehicleData as any).urlsImgs) {
+            imagenes = [(vehicleData as any).urlsImgs];
+          } else if (typeof (vehicleData as any).UrlsImgs === 'string' && (vehicleData as any).UrlsImgs) {
+            imagenes = [(vehicleData as any).UrlsImgs];
+          }
+          
+          // Si después de todo sigue vacío, añadir una imagen predeterminada
+          if (imagenes.length === 0) {
+            imagenes = ["https://via.placeholder.com/150?text=Sin+Imagen"];
+          }
+          
+          // Crear el objeto de vehículo estandarizado para inserción
+          const vehicle: InsertVehicle = {
+            idLocal,
+            idEmpresa,
+            descripcion,
+            marca,
+            modelo,
+            version,
+            anyo,
+            combustible,
+            bastidor,
+            matricula,
+            color,
+            kilometraje,
+            potencia,
+            puertas,
+            imagenes,
+            activo: true,
+            sincronizado: true,
+            ultimaSincronizacion: new Date()
+          };
+          
+          vehiclesToInsert.push(vehicle);
+        } else {
+          // Formato antiguo
+            const oldFormatVehicle = vehicleData as MetasyncVehicle;
+            // Crear descripción garantizando que nunca sea null
+            const marca = oldFormatVehicle.nombreMarca || oldFormatVehicle.NombreMarca || oldFormatVehicle.Marca || 'Desconocida';
+            const modelo = oldFormatVehicle.nombreModelo || oldFormatVehicle.NombreModelo || oldFormatVehicle.Modelo || 'Desconocido';
+            const version = oldFormatVehicle.nombreVersion || oldFormatVehicle.NombreVersion || oldFormatVehicle.Version || 'Desconocida';
+            const anyo = oldFormatVehicle.anyoVehiculo || oldFormatVehicle.AnyoVehiculo || 0;
+            const descripcion = `${marca} ${modelo} ${version}${anyo ? ` (${anyo})` : ''}`.trim() || `Vehículo ID ${oldFormatVehicle.IdLocal || 0}`;
+            
+            // Garantizar que imagenes sea siempre un array válido (nunca null)
+            let imagenes = [];
+            if (Array.isArray(oldFormatVehicle.UrlsImgs) && oldFormatVehicle.UrlsImgs.length > 0) {
+              imagenes = oldFormatVehicle.UrlsImgs;
+            } else if (typeof oldFormatVehicle.UrlsImgs === 'string' && oldFormatVehicle.UrlsImgs) {
+              imagenes = [oldFormatVehicle.UrlsImgs];
+            }
+            
+            // Si después de todo sigue vacío, añadir una imagen predeterminada
+            if (imagenes.length === 0) {
+              imagenes = ["https://via.placeholder.com/150?text=Sin+Imagen"];
+            }
+            
+            vehiclesToInsert.push({
+              idLocal: oldFormatVehicle.IdLocal,
+              idEmpresa: 1236, // Valor por defecto para compañía
+              descripcion,
+              marca,
+              modelo,
+              version,
+              anyo,
+              combustible: oldFormatVehicle.Combustible || '',
+              bastidor: oldFormatVehicle.Bastidor || '',
+              matricula: oldFormatVehicle.Matricula || '',
+              color: oldFormatVehicle.Color || '',
+              kilometraje: oldFormatVehicle.Kilometraje || 0,
+              potencia: oldFormatVehicle.Potencia || 0,
+              puertas: null, // No disponible en formato antiguo
+              imagenes, // Array garantizado, nunca null
+              activo: true,
+              sincronizado: true,
+              ultimaSincronizacion: new Date(),
+              fechaCreacion: new Date(),
+              fechaActualizacion: new Date()
+            });
+          }
+        } catch (vehicleError) {
+          console.error('Error preparando vehículo para inserción masiva:', vehicleError);
+          errors.push(`Error preparando vehículo: ${vehicleError instanceof Error ? vehicleError.message : 'Error desconocido'}`);
+        }
+      }
+
+      // Ejecutar inserción masiva si hay vehículos para insertar
+      if (vehiclesToInsert.length > 0) {
+        console.log(`Ejecutando inserción masiva de ${vehiclesToInsert.length} vehículos...`);
+        
+        // Usar transacción para garantizar atomicidad
+        await db.transaction(async (tx) => {
+          // Obtener IDs locales para verificar cuáles ya existen
+          const idLocalesParaInsertar = vehiclesToInsert.map(v => v.idLocal);
+          
+          // Consultar vehículos existentes con esos IDs locales - usar placeholders seguros
+          let existingVehicles = [];
+          
+          if (idLocalesParaInsertar.length > 0) {
+            // Dividir en grupos más pequeños para evitar límites de SQL
+            const chunkSize = 100; // Tamaño seguro para cláusulas IN
+            const idLocalesChunks = [];
+            
+            for (let i = 0; i < idLocalesParaInsertar.length; i += chunkSize) {
+              idLocalesChunks.push(idLocalesParaInsertar.slice(i, i + chunkSize));
+            }
+            
+            // Procesar cada grupo
+            const allExistingVehicles = [];
+            for (const chunk of idLocalesChunks) {
+              const result = await tx.select({ idLocal: vehicles.idLocal, id: vehicles.id })
+                .from(vehicles)
+                .where(inArray(vehicles.idLocal, chunk));
+              
+              allExistingVehicles.push(...result);
+            }
+            existingVehicles = allExistingVehicles;
+          }
+          
+          const existingIdLocales = new Set(existingVehicles.map(v => v.idLocal));
+          
+          // Filtrar solo vehículos nuevos
+          const newVehicles = vehiclesToInsert.filter(v => !existingIdLocales.has(v.idLocal));
+          
+          if (newVehicles.length > 0) {
+            // Insertar nuevos vehículos
+            await tx.insert(vehicles).values(newVehicles);
+            console.log(`Insertados ${newVehicles.length} vehículos nuevos`);
+          }
+          
+          // Actualizar vehículos existentes
+          for (const existingVehicle of existingVehicles) {
+            const vehicleToUpdate = vehiclesToInsert.find(v => v.idLocal === existingVehicle.idLocal);
+            if (vehicleToUpdate) {
+              await tx.update(vehicles)
+                .set({
+                  ...vehicleToUpdate,
+                  fechaActualizacion: new Date()
+                })
+                .where(eq(vehicles.id, existingVehicle.id));
+            }
+          }
+        });
+        
+        return { inserted: vehiclesToInsert.length, errors };
+        
+      } else {
+        return { inserted: 0, errors };
+      }
+    } catch (batchError) {
+      console.error('Error en el procesamiento por lotes de vehículos:', batchError);
+      errors.push(`Error en el procesamiento por lotes: ${batchError instanceof Error ? batchError.message : 'Error desconocido'}`);
+      return { inserted: 0, errors };
+    }
+  }
+
+  /**
+   * Procesa un lote de piezas en una sola operación de base de datos
+   * Incluye la importación de imágenes y manejo correcto de precios
+   */
+  async processPartBatch(partBatch: (MetasyncPart | any)[], isNewFormat: boolean): Promise<{
+    inserted: number;
+    updated: number;
+    errors: string[];
+  }> {
+    const errors: string[] = [];
+    const partsToProcess: InsertPart[] = [];
+    const vehiclePairsToProcess: { 
+      partRefLocal: number; 
+      idVehiculoOriginal: number;
+      codVersion?: string;
+    }[] = [];
+    
+    let inserted = 0;
+    let updated = 0;
+    
+    try {
+      // Preparar datos para inserción/actualización masiva
+      for (const partData of partBatch) {
+        try {
+          // Extraer datos comunes independientemente del formato
+          let refLocal: number;
+          let idEmpresa: number;
+          let precio: number;
+          let idVehiculoOriginal: number;
+          let codVersion: string = '';
+          let urlsImgs: string[] = [];
+          
+          if (isNewFormat) {
+            const newFormat = partData as MetasyncPart;
+            refLocal = newFormat.refLocal;
+            idEmpresa = newFormat.idEmpresa;
+            precio = typeof newFormat.precio === 'string' 
+              ? parseFloat(newFormat.precio) 
+              : (newFormat.precio || 0);
+            idVehiculoOriginal = newFormat.idVehiculo;
+            codVersion = newFormat.codVersion || '';
+            urlsImgs = newFormat.urlsImgs || [];
+            
+            partsToProcess.push({
+              refLocal,
+              idEmpresa,
+              idVehiculoOriginal,
+              codFamilia: newFormat.codFamilia || '',
+              descripcionFamilia: newFormat.descripcionFamilia || '',
+              codArticulo: newFormat.codArticulo || '',
+              descripcionArticulo: newFormat.descripcionArticulo || '',
+              codVersion,
+              refPrincipal: newFormat.refPrincipal || '',
+              precio,  // Asegurar que es un número
+              anyoStock: newFormat.anyoStock || 0,
+              peso: String(newFormat.peso || 0),
+              ubicacion: newFormat.ubicacion || 0,
+              observaciones: newFormat.observaciones || '',
+              reserva: newFormat.reserva || 0,
+              tipoMaterial: newFormat.tipoMaterial || 0,
+              imagenes: urlsImgs,  // Usar urlsImgs para el campo imagenes
+              anyoInicio: (newFormat as any).anyoInicio || 0,
+              anyoFin: (newFormat as any).anyoFin || 0,
+              puertas: (newFormat as any).puertas || 0,
+              rvCode: (newFormat as any).rvCode || '',
+              activo: false,  // Inicialmente inactiva, se activará solo si tiene relaciones válidas
+              sincronizado: true,
+              ultimaSincronizacion: new Date(),
+              fechaCreacion: new Date(),
+              fechaActualizacion: new Date()
+            });
+          } else {
+            // Formato antiguo
+            const oldFormat = partData as any;
+            refLocal = oldFormat.RefLocal;
+            idEmpresa = oldFormat.IdEmpresa;
+            precio = typeof oldFormat.Precio === 'string' 
+              ? parseFloat(oldFormat.Precio) 
+              : (oldFormat.Precio || 0);
+            idVehiculoOriginal = oldFormat.IdVehiculo;
+            codVersion = oldFormat.codVersion || '';
+            urlsImgs = oldFormat.UrlsImgs || [];
+            
+            partsToProcess.push({
+              refLocal,
+              idEmpresa,
+              idVehiculoOriginal,
+              codFamilia: oldFormat.CodFamilia || '',
+              descripcionFamilia: oldFormat.DescripcionFamilia || '',
+              codArticulo: oldFormat.CodArticulo || '',
+              descripcionArticulo: oldFormat.DescripcionArticulo || '',
+              codVersion,
+              refPrincipal: oldFormat.RefPrincipal || '',
+              precio,  // Asegurar que es un número
+              anyoStock: oldFormat.AnyoStock || 0,
+              peso: String(oldFormat.Peso || 0),
+              ubicacion: oldFormat.Ubicacion || 0,
+              observaciones: oldFormat.Observaciones || '',
+              reserva: oldFormat.Reserva || 0,
+              tipoMaterial: oldFormat.TipoMaterial || 0,
+              imagenes: urlsImgs,  // Usar UrlsImgs para el campo imagenes
+              anyoInicio: 0,
+              anyoFin: 0,
+              puertas: 0,
+              rvCode: '',
+              activo: false,  // Inicialmente inactiva, se activará solo si tiene relaciones válidas
+              sincronizado: true,
+              ultimaSincronizacion: new Date(),
+              fechaCreacion: new Date(),
+              fechaActualizacion: new Date()
+            });
+          }
+          
+          // Almacenar la relación parte-vehículo para procesarla después
+          vehiclePairsToProcess.push({
+            partRefLocal: refLocal,
+            idVehiculoOriginal,
+            codVersion
+          });
+          
+        } catch (partError) {
+          console.error('Error preparando pieza para procesamiento masivo:', partError);
+          errors.push(`Error preparando pieza: ${partError instanceof Error ? partError.message : 'Error desconocido'}`);
+        }
+      }
+
+      // Ejecutar inserción y actualización masiva si hay piezas para procesar
+      if (partsToProcess.length > 0) {
+        console.log(`Procesando por lotes ${partsToProcess.length} piezas...`);
+        
+        try {
+          // Usar transacción para garantizar atomicidad
+          await db.transaction(async (tx) => {
+            try {
+              // Obtener refLocal para verificar cuáles ya existen
+              const refLocalesParaProcesar = partsToProcess.map(p => p.refLocal);
+              
+              // Consultar piezas existentes con esos refLocal - usar procesamiento por lotes
+              let existingParts = [];
+              
+              if (refLocalesParaProcesar.length > 0) {
+                // Dividir en grupos más pequeños para evitar límites de SQL
+                const chunkSize = 100; // Tamaño seguro para cláusulas IN
+                const refLocalesChunks = [];
+                
+                for (let i = 0; i < refLocalesParaProcesar.length; i += chunkSize) {
+                  refLocalesChunks.push(refLocalesParaProcesar.slice(i, i + chunkSize));
+                }
+                
+                // Procesar cada grupo
+                const allExistingParts = [];
+                for (const chunk of refLocalesChunks) {
+                  const result = await tx.select({ refLocal: parts.refLocal, id: parts.id })
+                    .from(parts)
+                    .where(inArray(parts.refLocal, chunk));
+                  
+                  allExistingParts.push(...result);
+                }
+                existingParts = allExistingParts;
+              }
+              
+              const existingRefLocales = new Map(existingParts.map(p => [p.refLocal, p.id]));
+              
+              // Filtrar solo piezas nuevas
+              const newParts = partsToProcess.filter(p => !existingRefLocales.has(p.refLocal));
+              console.log(`Preparando para insertar ${newParts.length} piezas nuevas...`);
+              
+              if (newParts.length > 0) {
+                try {
+                  // Insertar nuevas piezas
+                  const result = await tx.insert(parts).values(newParts).returning({ id: parts.id, refLocal: parts.refLocal });
+                  inserted = result.length;
+                  
+                  // Verificar si se insertaron correctamente
+                  if (result.length === 0) {
+                    console.error('No se insertaron piezas aunque el comando no falló.');
+                  } else {
+                    // Actualizar el mapa con las piezas recién insertadas
+                    for (const part of result) {
+                      existingRefLocales.set(part.refLocal, part.id);
+                    }
+                    
+                    console.log(`Insertadas ${result.length} piezas nuevas. IDs: ${result.map(p => p.id).slice(0, 5).join(', ')}...`);
+                  }
+                } catch (insertError) {
+                  console.error('Error al insertar piezas:', insertError);
+                  errors.push(`Error al insertar piezas: ${insertError instanceof Error ? insertError.message : 'Error desconocido'}`);
+                }
+              }
+          
+              try {
+                // Actualizar piezas existentes
+                for (const existingPart of existingParts) {
+                  const partToUpdate = partsToProcess.find(p => p.refLocal === existingPart.refLocal);
+                  if (partToUpdate) {
+                    try {
+                      await tx.update(parts)
+                        .set({
+                          ...partToUpdate,
+                          fechaActualizacion: new Date()
+                        })
+                        .where(eq(parts.id, existingPart.id));
+                      updated++;
+                    } catch (updateError) {
+                      console.error(`Error al actualizar pieza ${existingPart.id}:`, updateError);
+                      errors.push(`Error al actualizar pieza: ${updateError instanceof Error ? updateError.message : 'Error desconocido'}`);
+                    }
+                  }
+                }
+                
+                // Procesar relaciones vehículo-pieza
+                console.log(`Procesando ${vehiclePairsToProcess.length} relaciones vehículo-pieza...`);
+                let relationCount = 0;
+                
+                for (const relation of vehiclePairsToProcess) {
+                  try {
+                    const partId = existingRefLocales.get(relation.partRefLocal);
+                    if (!partId) {
+                      console.error(`No se pudo encontrar la ID para la pieza con refLocal ${relation.partRefLocal}`);
+                      continue;
+                    }
+                    
+                    // Buscar vehículo por idLocal
+                    const vehicle = await tx.select()
+                      .from(vehicles)
+                      .where(eq(vehicles.idLocal, relation.idVehiculoOriginal))
+                      .limit(1);
+                      
+                    if (vehicle.length > 0) {
+                      // Verificar si ya existe la relación
+                      const existingRelation = await tx.select()
+                        .from(vehicleParts)
+                        .where(and(
+                          eq(vehicleParts.vehicleId, vehicle[0].id),
+                          eq(vehicleParts.partId, partId)
+                        ))
+                        .limit(1);
+                        
+                      if (existingRelation.length === 0) {
+                        // Crear relación
+                        await tx.insert(vehicleParts).values({
+                          vehicleId: vehicle[0].id,
+                          partId,
+                          idVehiculoOriginal: relation.idVehiculoOriginal,
+                          fechaCreacion: new Date()
+                        });
+                        relationCount++;
+                        
+                        // Marcar la pieza como activa
+                        await tx.update(parts)
+                          .set({ activo: true })
+                          .where(eq(parts.id, partId));
+                      }
+                    } else if (relation.idVehiculoOriginal < 0) {
+                      // Para IDs negativos, intentar hacer matching por código de versión
+                      if (relation.codVersion) {
+                        const matchedVehicles = await tx.select()
+                          .from(vehicles)
+                          .where(like(vehicles.version, `%${relation.codVersion}%`))
+                          .limit(1);
+                          
+                        if (matchedVehicles.length > 0) {
+                          // Crear relación con el vehículo encontrado
+                          await tx.insert(vehicleParts).values({
+                            vehicleId: matchedVehicles[0].id,
+                            partId,
+                            idVehiculoOriginal: relation.idVehiculoOriginal,
+                            fechaCreacion: new Date()
+                          });
+                          relationCount++;
+                          
+                          // Marcar la pieza como activa
+                          await tx.update(parts)
+                            .set({ activo: true })
+                            .where(eq(parts.id, partId));
+                        } else {
+                          // Guardar como relación pendiente (vehicleId = null)
+                          await tx.insert(vehicleParts).values({
+                            vehicleId: null,
+                            partId,
+                            idVehiculoOriginal: relation.idVehiculoOriginal,
+                            fechaCreacion: new Date()
+                          });
+                          relationCount++;
+                        }
+                      } else {
+                        // Guardar como relación pendiente si no hay codVersion
+                        await tx.insert(vehicleParts).values({
+                          vehicleId: null,
+                          partId,
+                          idVehiculoOriginal: relation.idVehiculoOriginal,
+                          fechaCreacion: new Date()
+                        });
+                        relationCount++;
+                      }
+                    } else {
+                      // Guardar como relación pendiente para vehículos normales no encontrados
+                      await tx.insert(vehicleParts).values({
+                        vehicleId: null,
+                        partId,
+                        idVehiculoOriginal: relation.idVehiculoOriginal,
+                        fechaCreacion: new Date()
+                      });
+                      relationCount++;
+                    }
+                  } catch (relationError) {
+                    console.error(`Error al procesar relación vehículo-pieza:`, relationError);
+                    errors.push(`Error al procesar relación: ${relationError instanceof Error ? relationError.message : 'Error desconocido'}`);
+                  }
+                }
+                
+                console.log(`Procesadas ${relationCount} relaciones vehículo-pieza`);
+                
+              } catch (txError) {
+                console.error('Error en la transacción:', txError);
+                errors.push(`Error en la transacción: ${txError instanceof Error ? txError.message : 'Error desconocido'}`);
+                throw txError; // Re-lanzar para que la transacción se revierta
+              }
+            });
+            
+            console.log(`Transacción completada con éxito: ${inserted} piezas insertadas, ${updated} actualizadas`);
+          } catch (dbError) {
+            console.error('Error en la base de datos:', dbError);
+            errors.push(`Error en la base de datos: ${dbError instanceof Error ? dbError.message : 'Error desconocido'}`);
+          }
+        
+          return { inserted, updated, errors };
+        
+        } else {
+          return { inserted: 0, updated: 0, errors };
+        }
+    } catch (batchError) {
+      console.error('Error en el procesamiento por lotes de piezas:', batchError);
+      errors.push(`Error en el procesamiento por lotes: ${batchError instanceof Error ? batchError.message : 'Error desconocido'}`);
+      return { inserted, updated, errors };
+    }
+  }
+}
+
+export const batchProcessor = new BatchProcessor();

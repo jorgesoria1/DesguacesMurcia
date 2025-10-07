@@ -1,0 +1,62 @@
+✅ 1. Requisitos Generales para todas las APIs
+
+Todos los endpoints requieren:
+apikey en el header → proporcionada por soporte.
+idempresa en el header para operaciones por empresa.
+Formato de fechas: "dd/MM/yyyy HH:mm:ss" para filtros.
+Tipos de métodos: GET o POST según el caso.
+📦 API INVENTARIO (https://apis.metasync.com/Almacen/)
+
+🔍 Obtener cambios (GET)
+Método	Ruta	Requiere
+RecuperarCambiosCanal	/RecuperarCambiosCanal	apikey, fecha, lastid, offset
+RecuperarCambiosCanalEmpresa	/RecuperarCambiosCanalEmpresa	+ idempresa
+RecuperarCambiosVehiculosCanal	/RecuperarCambiosVehiculosCanal	idem
+RecuperarCambiosVehiculosCanalEmpresa	/RecuperarCambiosVehiculosCanalEmpresa	+ idempresa
+🔢 Conteos (GET)
+Método	Ruta
+ConteoPiezas	/ConteoPiezas
+ConteoPiezasEmpresa	/ConteoPiezasEmpresa
+ConteoVehiculos	/ConteoVehiculos
+ConteoVehiculosEmpresa	/ConteoVehiculosEmpresa
+✏️ API INSERCIÓN (https://apis.metasync.com/)
+
+➕ Insertar piezas y vehículos (POST)
+Endpoint: /InventarioUPSERT
+Headers: apikey, idempresa
+Body: JSON con Piezas y Vehiculos
+{
+  "Piezas": [ /* lista de piezas con todos sus campos */ ],
+  "Vehiculos": [ /* lista de vehículos con todos sus campos */ ]
+}
+❌ Eliminar piezas (POST)
+Endpoint: /DeleteParts
+Headers: apikey, idempresa
+Body: [238672, 458965] (array de refLocal)
+🖼️ Insertar imágenes (POST)
+Método	Ruta
+Por URL	/InsertarImagenUrls
+Por archivo	/InsertarImagenArchivo
+📑 API PEDIDOS (https://apis.metasync.com/Pedidos/)
+
+📬 Crear pedido (POST)
+Endpoint: /CrearPedido
+Headers: apikey, idempresa
+Body: JSON con:
+Pedido (datos generales)
+Cliente (dirección de cliente)
+Envio (dirección de envío)
+Lineas (lista de productos o servicios)
+🔁 Acciones sobre pedidos (POST o GET)
+Acción	Endpoint	Método	Headers requeridos
+Actualizar estado	/ActualizarEstado	POST	codigo, apikey, idempresa, estado
+Añadir seguimiento	/AgregarSeguimiento	POST	codigo, apikey, idempresa, url
+Anular pedido	/AnularPedido	POST	codigo, apikey, idempresa
+Obtener pedido	/RecuperarPedidoOrigen	GET	codigo, apikey, idempresa
+Obtener seguimiento	/ObtenerSeguimiento	GET	codigo, apikey, idempresa
+⚠️ Códigos de Respuesta Comunes
+
+200 OK: éxito
+400 BadRequest: error de parámetros
+500: error interno
+503: servicio no disponible

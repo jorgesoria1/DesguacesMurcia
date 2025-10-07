@@ -1,0 +1,45 @@
+Cómo se enlazan “piezas” con “vehículos” en los JSON que has subido
+Clave de enlace
+Cada objeto pieza trae el campo idVehiculo.
+Ese valor coincide exactamente con idLocal del objeto vehiculo correspondiente.
+Ejemplo: la pieza con refLocal = 1194358 tiene idVehiculo = -1350842571 . En el mismo lote de datos existe un vehículo con idLocal = -1350842571 (marca “OTROS / MODELOS”) .
+Cobertura de la muestra
+El fichero RecuperarCambiosCanal contiene 1 000 piezas y 1 000 vehículos; cada pieza encuentra su vehículo, por lo que no hay huérfanos en esta descarga.
+El fichero RecuperarCambiosVehiculosCanal aporta otros 1 000 vehículos (mismos campos) 
+
+; muchos son los mismos registros pero con estado algo más rico, útil para refrescar datos detallados del vehículo.
+Vehículos con ID negativo
+Verás numerosos idLocal negativos en la lista de vehículos (por ejemplo -1495429674, -1806005770, etc.) 
+
+.
+Son “vehículos genéricos” que Metasync añade cuando aún no se dispone de la ficha completa; sirven únicamente para que las piezas no queden colgadas.
+Conforme vayas descargando en futuras llamadas RecuperarCambiosVehiculosCanal, esos mismos IDs pueden aparecer ya como vehículos reales (positivos) o bien recibir valores definitivos — entonces bastará con hacer un _update _ en tu tabla vehiculos.
+Procedimiento práctico para relacionarlos
+Paso	Acción
+1.	Inserta/actualiza todos los vehículos del array vehiculos en tu tabla vehiculos usando idLocal como PK.
+2.	Inserta/actualiza las piezas del array piezas; el campo idVehiculo lo grabas en la columna vehiculo_id (FK a vehiculos.id_local).
+3.	Si al insertar una pieza su vehículo no existe, guarda la pieza en una cola de re-intento y vuelve a probar tras la siguiente descarga (normalmente el vehículo llega en el mismo ciclo).
+-- ejemplo de unión una vez cargados
+SELECT  p.ref_local,
+        p.cod_articulo,
+        v.id_local,
+        v.nombreMarca,
+        v.nombreModelo
+FROM piezas p
+JOIN vehiculos v ON v.id_local = p.vehiculo_id;
+Comprobaciones que puedes hacer con esta descarga
+Piezas sin vehículo:
+SELECT COUNT(*) 
+  FROM piezas p
+  LEFT JOIN vehiculos v ON v.id_local = p.vehiculo_id
+ WHERE v.id_local IS NULL;
+Debería devolver 0 con los ficheros actuales.
+Cuántas piezas tiene cada vehículo:
+SELECT vehiculo_id, COUNT(*) AS num_piezas
+  FROM piezas
+ GROUP BY vehiculo_id
+ ORDER BY num_piezas DESC;
+Siguiente paso recomendado
+Automatiza el “ciclo incremental”: llama a RecuperarCambiosCanal cada N minutos con la última fechaMod y lastid; procesa primero vehículos y después piezas, tal como acabas de comprobar manualmente.
+Mantén índices sobre vehiculo_id y fecha_mod para que las consultas y el UPSERT sean rápidos.
+Con estos ficheros ya has verificado que la relación pieza → vehículo se realiza únicamente vía idVehiculo = idLocal y que, al menos en esta muestra, todas las piezas quedan correctamente enlazadas.

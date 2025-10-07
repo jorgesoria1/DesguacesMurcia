@@ -1,0 +1,106 @@
+{
+        "idLocal": 52276,
+        "idEmpresa": 1236,
+        "fechaMod": "2024-06-04T01:19:26",
+        "codigo": "06016",
+        "estado": [
+          0,
+          1,
+          10
+        ],
+        "bastidor": "VF1BB0FCF29873887",
+        "matricula": "7734CPM",
+        "color": "",
+        "kilometraje": 0,
+        "anyoVehiculo": 2001,
+        "codigoMotor": "D7F726",
+        "codigoCambio": "",
+        "observaciones": "SIN MOTOR ",
+        "urlsImgs": [
+          "https://cdn11.metasync.com/dpgaAn4uBcHB_ag3U-YVFV5aUYNv9ToPfHEJl6q6ojNSk-nwnkBVPw==",
+          "https://cdn11.metasync.com/xWJ3R7kqzw6FRPEVG1znKmHoIswg8cR78AzRbTjRlY6ToiTWatiK-g==",
+          "https://cdn11.metasync.com/flHeGSa1vV16JyfGlTfGhJGBQxRuHF2dI2b7qCVoS_dKu1emMkiHSw==",
+          "https://cdn11.metasync.com/7avYYeFcQsg8NQK11RrYlR4AwybJhf5TbpSLNgxRc5NmQd8b6eXKVA==",
+          "https://cdn11.metasync.com/7oxDPhXq99MLVCaI8shsAaI-qbkJVgFDF9Z8gxhz6BYe7CXQ7GVunQ=="
+        ],
+        "codMarca": "01720",
+        "nombreMarca": "RENAULT",
+        "codModelo": "01720069",
+        "nombreModelo": "CLIO II FASE II (B/CB0)",
+        "codVersion": "017200690020025",
+        "nombreVersion": "Authentique",
+        "tipoVersion": "Berlina",
+        "combustible": "Sin plomo 95",
+        "puertas": 5,
+        "anyoInicio": 2001,
+        "anyoFin": 2008,
+        "tiposMotor": [
+          "D7F720",
+          "D7F726",
+          "D7F746",
+          "D7F766",
+          "D7F764"
+        ],
+        "potenciaHP": 58,
+        "potenciaKw": 43,
+        "cilindrada": 1149,
+        "transmision": "Caja de cambios 5 velocidades",
+        "alimentacion": "",
+        "numMarchas": 5,
+        "rvCode": "3900",
+        "ktype": "9040"
+      },
+
+Como se relacionaría con este:
+   {
+        "idLocal": -1307182162,
+        "idEmpresa": 1236,
+        "fechaMod": "0001-01-01T00:00:00",
+        "codigo": "",
+        "estado": [],
+        "bastidor": "",
+        "matricula": "",
+        "color": "",
+        "kilometraje": 0,
+        "anyoVehiculo": 0,
+        "codigoMotor": "",
+        "codigoCambio": "",
+        "observaciones": "",
+        "urlsImgs": [],
+        "codMarca": "01720",
+        "nombreMarca": "RENAULT",
+        "codModelo": "01720069",
+        "nombreModelo": "CLIO II FASE II (B/CB0)",
+        "codVersion": "01720069",
+        "nombreVersion": "*",
+        "tipoVersion": "",
+        "combustible": "",
+        "puertas": 3,
+        "anyoInicio": 2001,
+        "anyoFin": 2013,
+        "tiposMotor": [],
+        "potenciaHP": null,
+        "potenciaKw": null,
+        "cilindrada": null,
+        "transmision": "",
+        "alimentacion": "",
+        "numMarchas": null,
+        "rvCode": "1027G",
+        "ktype": ""
+      }
+ChatGPT Plus
+Ambos vehículos que muestras están relacionados, aunque tienen diferente idLocal. La relación entre ellos no se basa en el idLocal, sino en campos comunes que definen la versión del vehículo, especialmente:
+
+🧩 Campos coincidentes que establecen la relación:
+Campo	Vehículo 1 (completo)	Vehículo 2 (piezas)
+codMarca	"01720"	"01720"
+nombreMarca	"RENAULT"	"RENAULT"
+codModelo	"01720069"	"01720069"
+nombreModelo	"CLIO II FASE II (B/CB0)"	"CLIO II FASE II (B/CB0)"
+codVersion	"017200690020025"	"01720069" (más genérico)
+🧠 Interpretación
+El vehículo 1 (idLocal: 52276) es un vehículo real y completo con bastidor, matrícula, motor y fotos.
+El vehículo 2 (idLocal: -1307182162) es una referencia genérica o "plantilla" generada por la API para asociar piezas cuando no se ha cargado aún el vehículo real.
+✅ Cómo relacionarlos correctamente
+Para cada pieza, el campo idVehiculo apunta al vehículo genérico (-1307182162).
+Cuando el vehículo completo esté cargado (como 52276), puedes actualizar las piezas para que en vez de apuntar al id genérico, se relacionen con el vehículo real.

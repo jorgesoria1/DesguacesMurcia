@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es-ES">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199)  (OEM: 011023) (Ref: 1221912)</title>
+    <meta name="description" content="Compra RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199) online en Desguace Murcia por 20€. Garantía 3 meses y envío península." />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  
+    <meta property="og:title" content="RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199)  (OEM: 011023) (Ref: 1221912)" />
+    <meta property="og:description" content="Compra RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199) online en Desguace Murcia por 20€. Garantía 3 meses y envío península." />
+    <meta property="og:image" content="https://cdn11.metasync.com/kHi_uVqTHpj37PJw-P-d6slk5PrcO3NoVF1-yf2kAZcM4FpVmqsEfg==" />
+    <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="Desguace Murcia" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199)  (OEM: 011023) (Ref: 1221912)" />
+    <meta name="twitter:description" content="Compra RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199) online en Desguace Murcia por 20€. Garantía 3 meses y envío península." />
+    <meta name="twitter:image" content="https://cdn11.metasync.com/kHi_uVqTHpj37PJw-P-d6slk5PrcO3NoVF1-yf2kAZcM4FpVmqsEfg==" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product", 
+      "name": "RETROVISOR IZQUIERDO",
+      "description": "Compra RETROVISOR IZQUIERDO FIAT GRANDE PUNTO (199) online en Desguace Murcia por 20€. Garantía 3 meses y envío península.",
+      "image": "https://cdn11.metasync.com/kHi_uVqTHpj37PJw-P-d6slk5PrcO3NoVF1-yf2kAZcM4FpVmqsEfg==",
+      "brand": {
+        "@type": "Brand",
+        "name": "FIAT"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "20",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "seller": {
+          "@type": "Organization",
+          "name": "Desguace Murcia S.L.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Murcia",
+            "addressCountry": "ES"
+          }
+        },
+        "warranty": {
+          "@type": "WarrantyPromise",
+          "durationOfWarranty": "P3M"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating", 
+        "ratingValue": "4.8",
+        "reviewCount": "592"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

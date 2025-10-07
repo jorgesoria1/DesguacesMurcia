@@ -1,0 +1,18 @@
+Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at cacheFirst (sw.js:121:13)Entender este error
+index-vpMCc-hy.js:897 Safe cache strategy initialized - Meta tags preserved
+desguacemurcia.com/:1 A preload for 'https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-mu0SC55I.woff2' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.Entender esta advertencia
+desguacemurcia.com/:1 A preload for 'https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-mu0SC55I.woff2' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.Entender esta advertencia
+desguacemurcia.com/:1 A preload for 'https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-mu0SC55I.woff2' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.Entender esta advertencia
+desguacemurcia.com/:1 A preload for 'https://fonts.gstatic.com/s/montserrat/v30/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.Entender esta advertencia
+api/auth/me:1  Failed to load resource: the server responded with a status of 401 ()Entender este error
+favicon.svg:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+10The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Entender esta advertencia
+favicon.svg:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.svg:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error
+favicon.ico:1  Failed to load resource: the server responded with a status of 500 ()Entender este error

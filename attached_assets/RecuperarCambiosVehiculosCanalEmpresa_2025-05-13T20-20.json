@@ -1,0 +1,9 @@
+{
+  "success": false,
+  "method": "RecuperarCambiosVehiculosCanalEmpresa",
+  "endpoint": "https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanalEmpresa",
+  "timestamp": "2025-05-13T20:20:39.472Z",
+  "error": "Request failed with status code 404",
+  "status": 404,
+  "details": ""
+}

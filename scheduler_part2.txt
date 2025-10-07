@@ -1,0 +1,405 @@
+          results = await this.importParts(options);
+          break;
+        case 'all':
+        default:
+          // Importar vehículos y piezas
+          const vehicleResults = await this.importVehicles(options);
+          const partResults = await this.importParts(options);
+          
+          results = {
+            status: this.getCombinedStatus(vehicleResults.status, partResults.status),
+            totalItems: vehicleResults.totalItems + partResults.totalItems,
+            newItems: vehicleResults.newItems + partResults.newItems,
+            updatedItems: vehicleResults.updatedItems + partResults.updatedItems,
+            errors: [vehicleResults.errors, partResults.errors].filter(Boolean).join('; '),
+            details: {
+              vehicles: vehicleResults,
+              parts: partResults,
+              ...(options?.fullImport ? { fullImport: true } : {})
+            }
+          };
+          break;
+      }
+
+      // Actualizar el registro de historial
+      await storage.updateImportHistory(history.id, {
+        status: results.status,
+        totalItems: results.totalItems,
+        newItems: results.newItems,
+        updatedItems: results.updatedItems,
+        errors: results.errors,
+        details: results.details,
+        endTime: new Date()
+      });
+
+      console.log(`Tarea completada: ${schedule.type} - Estado: ${results.status}`);
+    } catch (error) {
+      console.error(`Error al ejecutar tarea ${schedule.type}:`, error);
+      
+      // Intentar actualizar el historial con el error
+      try {
+        const histories = await storage.getImportHistory(1);
+        if (histories.length > 0) {
+          await storage.updateImportHistory(histories[0].id, {
+            status: 'failed',
+            errors: error instanceof Error ? error.message : 'Error desconocido',
+            endTime: new Date()
+          });
+        }
+      } catch (updateError) {
+        console.error('Error al actualizar el historial:', updateError);
+      }
+    }
+  }
+
+  /**
+   * Importa vehículos desde la API
+   * @param options Opciones de importación
+   * @param options.fromDate Fecha desde la que importar
+   * @param options.fullImport Si es true, importa todos los vehículos sin filtrar por fecha
+   */
+  async importVehicles(options?: { fromDate?: Date; fullImport?: boolean }): Promise<{
+    status: string;
+    totalItems: number;
+    newItems: number;
+    updatedItems: number;
+    errors: string;
+    details?: any;
+  }> {
+    try {
+      // Fecha desde la que importar (30 días atrás por defecto)
+      const fromDate = options?.fromDate || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - 30);
+        return date;
+      })();
+      
+      // Flag para indicar si es importación completa
+      const fullImport = options?.fullImport || false;
+      
+      console.log(`Iniciando importación de vehículos. Modo: ${fullImport ? 'completa' : `desde ${fromDate.toISOString()}`}`);
+      
+      let newVehicles = 0;
+      let updatedVehicles = 0;
+      
+      // Paso 1: Intentar obtener vehículos directamente del endpoint de vehículos
+      console.log(`Solicitando vehículos usando endpoint principal`);
+      let vehicles: any[] = [];
+      let isNewFormat = false;
+      
+      try {
+        // Si es importación completa, usar método getVehicles
+        if (fullImport) {
+          console.log('Usando getVehicles para importación completa');
+          const response = await metasyncApi.getVehicles(1000);
+          isNewFormat = !!response?.vehiculos;
+          vehicles = (isNewFormat ? response?.vehiculos : response?.elements) || [];
+          console.log(`Respuesta de getVehicles: ${vehicles.length} vehículos`);
+        } else {
+          console.log(`Usando getVehicleChanges para importación incremental`);
+          const response = await metasyncApi.getVehicleChanges(fromDate, 0);
+          isNewFormat = !!response?.vehiculos;
+          vehicles = (isNewFormat ? response?.vehiculos : response?.elements) || [];
+          console.log(`Respuesta de getVehicleChanges: ${vehicles.length} vehículos`);
+        }
+      } catch (error) {
+        console.error('Error al obtener vehículos directamente:', error);
+      }
+      
+      // Paso 2: Si no hay vehículos, intentar recuperarlos a través del endpoint de piezas
+      if (vehicles.length === 0) {
+        console.log('No se encontraron vehículos directamente. Intentando a través del endpoint de piezas...');
+        try {
+          const partsResponse = await metasyncApi.getParts(1000);
+          
+          if (partsResponse.vehiculos && partsResponse.vehiculos.length > 0) {
+            console.log(`Encontrados ${partsResponse.vehiculos.length} vehículos a través del endpoint de piezas`);
+            vehicles = partsResponse.vehiculos;
+            isNewFormat = true; // Las piezas siempre devuelven el formato nuevo
+          } else {
+            console.log('No se encontraron vehículos a través del endpoint de piezas');
+          }
+        } catch (error) {
+          console.error('Error al intentar obtener vehículos a través de piezas:', error);
+        }
+      }
+      
+      console.log(`Procesando ${vehicles.length} vehículos. Formato: ${isNewFormat ? 'nuevo' : 'antiguo'}`);
+      
+      // Paso 3: Procesar los vehículos
+      if (vehicles.length > 0) {
+        for (const vehicle of vehicles) {
+          try {
+            // Obtener idLocal basado en el formato
+            const idLocalValue = isNewFormat 
+              ? (vehicle as MetasyncVehicleNew).idLocal 
+              : (vehicle as MetasyncVehicle).IdLocal;
+              
+            if (idLocalValue === undefined) {
+              console.warn(`Vehículo sin idLocal válido. Saltando.`);
+              continue;
+            }
+            
+            // Verificar si ya existe
+            const existingVehicles = await storage.getVehicles({
+              idLocal: idLocalValue, 
+              idEmpresa: metasyncApi.getConfig()?.companyId || 0
+            });
+            
+            // Preparar datos para guardar
+            let vehicleData;
+            
+            if (isNewFormat) {
+              // Formato nuevo
+              const newFormatVehicle = vehicle as MetasyncVehicleNew;
+              vehicleData = {
+                idLocal: newFormatVehicle.idLocal,
+                idEmpresa: metasyncApi.getConfig()?.companyId || 0,
+                descripcion: `${newFormatVehicle.nombreMarca || ''} ${newFormatVehicle.nombreModelo || ''} ${newFormatVehicle.nombreVersion || ''}`.trim(),
+                marca: newFormatVehicle.nombreMarca || newFormatVehicle.codMarca || '',
+                modelo: newFormatVehicle.nombreModelo || newFormatVehicle.codModelo || '',
+                version: newFormatVehicle.nombreVersion || newFormatVehicle.codVersion || '',
+                anyo: newFormatVehicle.anyoVehiculo || newFormatVehicle.anyoInicio || 0,
+                combustible: newFormatVehicle.combustible || '',
+                bastidor: newFormatVehicle.bastidor || '',
+                matricula: newFormatVehicle.matricula || '',
+                color: newFormatVehicle.color || '',
+                kilometraje: newFormatVehicle.kilometraje || 0,
+                potencia: newFormatVehicle.potenciaHP || 0,
+                imagenes: newFormatVehicle.urlsImgs || []
+              };
+            } else {
+              // Formato antiguo
+              const oldFormatVehicle = vehicle as MetasyncVehicle;
+              vehicleData = {
+                idLocal: oldFormatVehicle.IdLocal,
+                idEmpresa: metasyncApi.getConfig()?.companyId || 0,
+                descripcion: `${oldFormatVehicle.Marca || ''} ${oldFormatVehicle.Modelo || ''} ${oldFormatVehicle.Version || ''}`.trim(),
+                marca: oldFormatVehicle.Marca || '',
+                modelo: oldFormatVehicle.Modelo || '',
+                version: oldFormatVehicle.Version || '',
+                anyo: oldFormatVehicle.AnyoVehiculo || 0,
+                combustible: oldFormatVehicle.Combustible || '',
+                bastidor: oldFormatVehicle.Bastidor || '',
+                matricula: oldFormatVehicle.Matricula || '',
+                color: oldFormatVehicle.Color || '',
+                kilometraje: oldFormatVehicle.Kilometraje || 0,
+                potencia: oldFormatVehicle.Potencia || 0,
+                imagenes: oldFormatVehicle.UrlsImgs || []
+              };
+            }
+            
+            // Guardar/actualizar vehículo
+            if (existingVehicles.length > 0) {
+              await storage.updateVehicle(existingVehicles[0].id, vehicleData);
+              updatedVehicles++;
+            } else {
+              await storage.createVehicle(vehicleData);
+              newVehicles++;
+            }
+          } catch (err) {
+            console.error(`Error al procesar vehículo:`, err);
+          }
+        }
+      }
+      
+      return {
+        status: 'completed',
+--
+  async importParts(options?: { fromDate?: Date; fullImport?: boolean }) {
+    try {
+      // Fecha desde la que importar (30 días atrás por defecto)
+      const fromDate = options?.fromDate || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - 30);
+        return date;
+      })();
+      
+      // Flag para indicar si es importación completa
+      const fullImport = options?.fullImport || false;
+      
+      console.log(`Iniciando importación de piezas. Modo: ${fullImport ? 'completa' : `desde ${fromDate.toISOString()}`}`);
+      
+      let apiParts: any[] = [];
+      let lastId = 0;
+      let hasMore = true;
+      let totalImported = 0;
+      let newParts = 0;
+      let updatedParts = 0;
+      let errors = '';
+      
+      // Recuperar todas las piezas paginadas
+      while (hasMore) {
+        console.log(`Solicitando piezas. Modo: ${fullImport ? 'completa' : 'incremental'}, lastId: ${lastId}`);
+        
+        let response;
+        // Si es importación completa, usar método getParts en lugar de getPartChanges
+        if (fullImport) {
+          console.log('Usando getParts para importación completa');
+          response = await metasyncApi.getParts(1000);
+          console.log(`Respuesta recibida de getParts. Length: ${response?.elements?.length || 0}`);
+        } else {
+          console.log(`Usando getPartChanges para importación incremental desde ${fromDate.toISOString()}`);
+          response = await metasyncApi.getPartChanges(fromDate, lastId);
+          console.log(`Respuesta recibida de getPartChanges. Length: ${response?.elements?.length || 0}`);
+        }
+        
+        // Verificar si la respuesta contiene datos
+        if (!response || (!response.piezas && !response.elements)) {
+          console.warn('Respuesta de API inválida en importParts:', response);
+          hasMore = false;
+          break;
+        }
+        
+        // Determinar el formato de respuesta (nuevo o antiguo)
+        const isNewFormat = !!response.piezas;
+        
+        // Extraer piezas según el formato y garantizar que no sea undefined
+        const parts = (isNewFormat ? response.piezas : response.elements) || [];
+        
+        console.log(`Procesando ${parts.length} piezas. Formato de respuesta: ${isNewFormat ? 'nuevo' : 'antiguo'}`);
+        if (isNewFormat && response.result_set) {
+          console.log(`Información de paginación:`, response.result_set);
+        } else if (response.pagination) {
+          console.log(`Información de paginación:`, response.pagination);
+        }
+        
+        apiParts = apiParts.concat(parts);
+        
+        // Actualizar el lastId y hasMore para la siguiente iteración según el formato
+        if (isNewFormat && response.result_set) {
+          lastId = response.result_set.lastId || 0;
+          hasMore = (response.result_set.total || 0) > (response.result_set.count || 0) + (response.result_set.offset || 0);
+        } else if (response.pagination) {
+          lastId = response.pagination.lastId;
+          hasMore = response.pagination.hasMore;
+        } else {
+          hasMore = false;
+        }
+        
+        // En una importación completa, debemos detener el bucle después de la primera iteración
+        // ya que getParts() ya está recuperando todas las piezas
+        if (fullImport) {
+          console.log('Deteniendo bucle después de la primera iteración en importación completa de piezas');
+          // Solo detenemos el bucle si hay datos, para evitar devolver respuesta vacía
+          if (parts && parts.length > 0) {
+            // Si lastId es 0 o muy pequeño y hasMore es false, hay un problema con la respuesta
+            if (lastId < 10 && !hasMore) {
+              console.warn('Posible problema con la paginación. lastId muy pequeño y hasMore false con datos presentes');
+              // Podemos forzar una segunda iteración para comprobar si hay más datos
+              hasMore = true;
+              const lastPart = parts[parts.length - 1];
+              lastId = Math.max(1, lastPart?.refLocal || 0);
+              console.log(`Forzando segunda iteración con lastId = ${lastId}`);
+            } else {
+              hasMore = false;
+            }
+          }
+        }
+        
+        // Procesar las piezas
+        for (const part of parts) {
+          try {
+            // Log para depuración de la pieza
+            console.log(`Procesando pieza: refLocal=${part.refLocal}, precio=${part.precio}, precio corregido=${Math.round(part.precio/1000)}`);
+            
+            // Comprobar si ya existe la pieza consultando directamente
+            const existingParts = await storage.getParts({
+              refLocal: part.refLocal, 
+              idEmpresa: part.idEmpresa
+            });
+            
+            const partData = {
+              refLocal: part.refLocal,
+              idEmpresa: part.idEmpresa,
+              idVehiculo: part.idVehiculo,
+              codFamilia: part.codFamilia,
+              descripcionFamilia: part.descripcionFamilia,
+              codArticulo: part.codArticulo,
+              descripcionArticulo: part.descripcionArticulo,
+              codVersion: part.codVersion,
+              refPrincipal: part.refPrincipal,
+              precio: Math.round(part.precio / 1000), // Los precios vienen multiplicados por 1000
+              // Log para depuración del precio
+              _precioOriginal: part.precio,
+              anyoStock: part.anyoStock,
+              peso: part.peso,
+              ubicacion: part.ubicacion,
+              observaciones: part.observaciones,
+              reserva: part.reserva,
+              tipoMaterial: part.tipoMaterial,
+              imagenes: part.urlsImgs
+            };
+            
+            if (existingParts.length > 0) {
+              // Actualizar la pieza existente
+              await storage.updatePart(existingParts[0].id, partData);
+              updatedParts++;
+            } else {
+              // Crear una nueva pieza
+              await storage.createPart(partData);
+              newParts++;
+            }
+            
+            totalImported++;
+          } catch (partError) {
+            console.error(`Error al procesar pieza ${part.refLocal}:`, partError);
+            errors += `Error en pieza ${part.refLocal}: ${partError instanceof Error ? partError.message : 'Error desconocido'}; `;
+          }
+        }
+      }
+      
+      return {
+        status: errors ? 'partial' : 'completed',
+        totalItems: totalImported,
+        newItems: newParts,
+        updatedItems: updatedParts,
+        errors,
+        details: { totalParts: apiParts.length }
+      };
+    } catch (error) {
+      console.error('Error al importar piezas:', error);
+      return {
+        status: 'failed',
+        totalItems: 0,
+        newItems: 0,
+        updatedItems: 0,
+        errors: error instanceof Error ? error.message : 'Error desconocido',
+        details: {}
+      };
+    }
+  }
+
+  /**
+   * Obtiene el estado combinado de dos resultados
+   */
+  private getCombinedStatus(status1: string, status2: string) {
+    if (status1 === 'failed' || status2 === 'failed') {
+      return 'failed';
+    }
+    if (status1 === 'partial' || status2 === 'partial') {
+      return 'partial';
+    }
+    return 'completed';
+  }
+
+  /**
+   * Obtiene el intervalo en milisegundos según la frecuencia
+   */
+  private getIntervalMilliseconds(frequency: string): number {
+    switch (frequency) {
+      case '1h':
+        return 60 * 60 * 1000;
+      case '6h':
+        return 6 * 60 * 60 * 1000;
+      case '12h':
+        return 12 * 60 * 60 * 1000;
+      case '24h':
+      default:
+        return 24 * 60 * 60 * 1000;
+    }
+  }
+}
+
+// Exportar una instancia singleton
+export const importScheduler = new ImportScheduler();

@@ -1,0 +1,21 @@
+node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+
+# Carpetas de backup
+backup/
+backups/
+backup_final/
+backup_completo_*/
+
+# Archivos de backup
+backup*.json
+backup*.js
+desguace_murcia_backup_*
+
+# Archivos de documentación
+*.md
+!README.md

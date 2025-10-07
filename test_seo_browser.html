@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test SEO Client-Side</title>
+</head>
+<body>
+    <h1>Prueba SEO Client-Side</h1>
+    <script>
+        // Simular navegación a página de pieza
+        console.log('Iniciando test SEO...');
+        
+        // Test de la función SEO como si estuviera en /piezas/test-629055
+        const testSEO = async () => {
+            const partId = 629055;
+            console.log('Testing part ID:', partId);
+            
+            try {
+                const response = await fetch(`http://localhost:5000/api/parts/${partId}`);
+                if (response.ok) {
+                    const part = await response.json();
+                    console.log('Part data received:', part);
+                    
+                    const vehicleInfo = part.vehicleMarca && part.vehicleModelo 
+                        ? ` ${part.vehicleMarca} ${part.vehicleModelo}` 
+                        : '';
+                    const oemRef = part.refPrincipal && part.refPrincipal !== 'N/A' 
+                        ? ` (OEM: ${part.refPrincipal})` 
+                        : '';
+                    const internalRef = part.refLocal ? ` (Ref: ${part.refLocal})` : '';
+                    
+                    const newTitle = `${part.descripcionArticulo}${vehicleInfo}${oemRef}${internalRef}`;
+                    console.log('Generated title:', newTitle);
+                    
+                    document.title = newTitle;
+                    console.log('Title updated to:', document.title);
+                } else {
+                    console.error('API error:', response.status);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        
+        testSEO();
+    </script>
+</body>
+</html>

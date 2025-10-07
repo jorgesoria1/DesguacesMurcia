@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Safari SEO Compatibility</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🍎 Test Safari SEO Compatibility</h1>
+    <div id="results"></div>
+    <button onclick="runTest()">🚀 Ejecutar Test</button>
+    
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+            console.log(message);
+        }
+        
+        async function runTest() {
+            document.getElementById('results').innerHTML = '';
+            
+            log('🚀 Iniciando test de compatibilidad Safari...', 'info');
+            log(`🌐 User Agent: ${navigator.userAgent}`, 'info');
+            log(`🔒 Cookies enabled: ${navigator.cookieEnabled}`, 'info');
+            log(`📱 Private browsing: ${window.navigator.webkitTemporaryStorage ? 'Posiblemente SÍ' : 'NO detectado'}`, 'info');
+            
+            // Test 1: Fetch API
+            try {
+                log('🔄 Test 1: Probando Fetch API...', 'info');
+                const testResponse = await fetch('/api/parts/629055', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                if (testResponse.ok) {
+                    const data = await testResponse.json();
+                    log(`✅ Fetch API: OK - Pieza: ${data.descripcionArticulo}`, 'success');
+                } else {
+                    log(`❌ Fetch API: Error ${testResponse.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Fetch API: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Document manipulation
+            try {
+                log('🔄 Test 2: Manipulación de document...', 'info');
+                const originalTitle = document.title;
+                document.title = 'TEST TITLE SAFARI';
+                
+                if (document.title === 'TEST TITLE SAFARI') {
+                    log('✅ Document.title: OK', 'success');
+                    document.title = originalTitle; // Restore
+                } else {
+                    log('❌ Document.title: FAILED', 'error');
+                }
+                
+                // Test meta description
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.setAttribute('name', 'description');
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.setAttribute('content', 'Test description Safari');
+                
+                const newContent = metaDesc.getAttribute('content');
+                if (newContent === 'Test description Safari') {
+                    log('✅ Meta description: OK', 'success');
+                } else {
+                    log('❌ Meta description: FAILED', 'error');
+                }
+            } catch (error) {
+                log(`❌ Document manipulation: ${error.message}`, 'error');
+            }
+            
+            // Test 3: URL parsing
+            try {
+                log('🔄 Test 3: Parsing URL de pieza...', 'info');
+                const testUrl = '/piezas/bomba-direccion-peugeot-306-35-pt-s1011993-629055';
+                const match = testUrl.match(/-(\d+)$/);
+                const partId = match ? parseInt(match[1]) : 0;
+                
+                if (partId === 629055) {
+                    log(`✅ URL parsing: OK - ID extraído: ${partId}`, 'success');
+                } else {
+                    log(`❌ URL parsing: FAILED - ID: ${partId}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ URL parsing: ${error.message}`, 'error');
+            }
+            
+            log('🏁 Test completado', 'info');
+        }
+        
+        // Auto-ejecutar en 1 segundo
+        setTimeout(runTest, 1000);
+    </script>
+</body>
+</html>

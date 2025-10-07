@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie
+Content-Type: application/json; charset=utf-8
+Content-Length: 487
+ETag: W/"1e7-hjH/W0DoF/C2co2CAErZhsGQhjc"
+Date: Sat, 02 Aug 2025 12:04:01 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

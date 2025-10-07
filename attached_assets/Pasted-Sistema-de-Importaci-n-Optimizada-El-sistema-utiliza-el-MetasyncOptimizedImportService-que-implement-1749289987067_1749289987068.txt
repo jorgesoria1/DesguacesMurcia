@@ -1,0 +1,59 @@
+Sistema de Importación Optimizada
+El sistema utiliza el MetasyncOptimizedImportService que implementa múltiples estrategias de optimización:
+
+1. Procesamiento por Lotes
+Tamaño de lote: 1000 registros por petición (máximo permitido por la API)
+Paginación eficiente: Usa lastId para avanzar sin repetir datos
+Transacciones agrupadas: Inserta/actualiza múltiples registros de una vez
+2. Estrategias de Eficiencia
+Búsquedas Optimizadas:
+
+// Buscar vehículos existentes en una sola consulta
+const existingVehicles = await db
+  .select({ id: vehicles.id, idLocal: vehicles.idLocal })
+  .from(vehicles)
+  .where(inArray(vehicles.idLocal, vehicleIds));
+Mapas de Acceso Rápido:
+
+// Crear mapa para acceso O(1)
+const existingMap = new Map(
+  existingVehicles.map(v => [v.idLocal, v.id])
+);
+3. Manejo Robusto de Errores
+Reintentos automáticos: Hasta 3 intentos con backoff exponencial
+Gestión de rate limits: Pausa automática cuando la API está sobrecargada
+Continuación tras errores: No se detiene por errores puntuales
+4. Control de Sincronización
+Tracking de progreso: Guarda el último ID procesado
+Recuperación: Puede continuar desde donde se quedó
+Fechas incrementales: Solo importa cambios desde la última sincronización
+5. Optimizaciones de Red
+Compresión: Headers Accept-Encoding: gzip
+Parámetros eficientes: Usa headers en lugar de URL para mejor compatibilidad
+Conexión persistente: Reutiliza conexiones HTTP
+6. Procesamiento Asíncrono
+El proceso se ejecuta en segundo plano:
+
+// Iniciar proceso asincrónico
+setTimeout(() => this.importVehicles(importRecord.id), 100);
+7. Secuencia Optimizada para Importación Completa
+Primero vehículos: Se importan todos los vehículos
+Después piezas: Se importan las piezas (5 segundos después)
+Resolución de relaciones: Se procesan las relaciones pendientes automáticamente
+8. Características de Rendimiento
+Procesamiento concurrente: Múltiples operaciones en paralelo
+Cache de relaciones: Evita consultas repetitivas
+Validación mínima: Solo campos esenciales durante la importación
+Activación diferida: Las piezas se activan solo cuando tienen vehículos válidos
+Endpoints de Importación Rápida
+POST /api/metasync-optimized/import/vehicles    # Solo vehículos
+POST /api/metasync-optimized/import/parts       # Solo piezas  
+POST /api/metasync-optimized/import/all         # Completa (recomendado)
+Monitoreo en Tiempo Real
+El sistema proporciona seguimiento detallado:
+
+Progreso en porcentaje
+Elementos procesados/nuevos/actualizados
+Errores específicos
+Tiempo estimado restante
+Esta arquitectura permite procesar miles de registros por minuto manteniendo la integridad de los datos y la capacidad de recuperación ante fallos.

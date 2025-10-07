@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "about:legacy-compat">
+<!--     RSisException --><html xmlns:java="http://xml.apache.org/xalan/java" lang="es">
+<title>Pantalla de excepcion Redsys</title>
+<meta content="-1" http-equiv="Expires">
+<meta content="Monday, 01-Jan-90 00:00:00 GMT" http-equiv="Expires">
+<meta content="no-cache, no-store" http-equiv="Pragma">
+<meta content="no-cache, no-store, max-age=0, must-revalidate" http-equiv="Cache-Control">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+<link href="/sis/graficos/logotipos/comunes/9999favicon.ico" type="image/ico" rel="shortcut icon">
+<link href="/sis/graficos/logotipos/comunes/9999favicon.ico" type="image/ico" rel="icon">
+<link type="text/css" href="/sis/estilos/unica/9999redsys.css?v=21122021105700" rel="StyleSheet">
+<link type="text/css" href="/sis/estilos/unica/loading-modal.css?v=21122021105700" rel="StyleSheet"><!--[if lt IE 10]><link href="/sis/estilos/unica/9999ie.css?v=21122021105700" type="text/css" rel="stylesheet"><![endif]--><!--[if lt IE 8]><link href="/sis/estilos/unica/ie7.css?v=21122021105700" type="text/css" rel="stylesheet"><![endif]--><link type="text/css" href="/sis/estilos/unica/9999-ni.css?v=21122021105700" rel="StyleSheet">
+<link rel="StyleSheet" type="text/css" href="/sis/estilos/unica/-100--ni.css?v=21122021105700"><!--[if lt IE 9]><script src="/sis/javascript/unica/html5shiv.js" type="text/javascript"></script><script src="/sis/javascript/unica/respond.min.js" type="text/javascript"></script><![endif]--><script src="/sis/javascript/unica/modernizr-2.8.3.js" type="text/javascript"></script><script src="/sis/javascript/unica/jquery-3.6.1.min.js" type="text/javascript"></script><script src="/sis/javascript/utilSis.js?v=21122021105700" type="text/javascript"></script><script src="/sis/javascript/unica/9999-ni.js?v=21122021105700" type="text/javascript"></script><script src="/sis/javascript/unica/9999main.js?v=21122021105700" type="text/javascript"></script><script type="text/javascript" src="/sis/javascript/unica/-100-ni.js?v=21122021105700"></script><script type="text/javascript">
+			function fijarLiterales() {
+		   		
+			}
+			
+			var dcc = 0;
+			function dccYes() {
+				if (dcc == 0) {
+					dcc++;
+					deshabilitarBotonPagarDCC();
+					document.dccYES.submit();
+				}
+			}
+			function dccNo() {
+				if (dcc == 0) {
+					dcc++;
+					deshabilitarBotonPagarDCC();
+					document.dccNO.submit();
+				}
+			}
+			
+			function fijarDivisaDCC(moneda, importe) {
+				document.getElementById("Sis_Divisa").value = moneda + '#' + importe;
+				document.formTarjeta.submit();
+			}
+		</script><script src="/sis/javascript/xsl/RSisReciboOK.js?v=21122021105700" type="text/javascript"></script><script type="text/javascript">
+						function cambiarIdiomaCheck(valor) {
+								document.getElementById("checkIdioma").value = valor;
+							}
+					</script>
+</head>
+<body id="result-error" onload="fijarLiterales();inicializaCambioIdioma();cambiarIdiomaCheck('1');">
+<div id="container">
+<form autocomplete="off" action="/sis/" method="get" name="formCuenta">
+<input value="" name="bcancel" type="hidden">
+<header id="header">
+<div class="container">
+<h1 style="display:none;">Redsys</h1>
+<div class="logoComercio">
+<img alt="" src="/sis/comercios/img/logotipos/--logo.png" onerror="this.src='/sis/graficos/logotipos/comunes/vacio.gif'" title=""></div>
+<div class="logoEntidad">
+<img alt="" src="/sis/graficos/logotipos/entidad/0.png?v=21122021105700" onerror="this.src='/sis/graficos/logotipos/comunes/9999logo.png?v=21122021105700'"></div>
+<div class="lang-wr">
+<div class="left">
+<label for="checkIdioma">
+<p>
+<text lngid="seleccioneSuIdioma" id="seleccioneSuIdioma">Seleccione su idioma</text>
+</p>
+</label>
+</div>
+<div class="right">
+<select onChange="cambiarIdioma(this.value,'RSisException');" id="checkIdioma"> class="lang" 
+							<option value="1">Castellano</option><option value="3">Català</option><option value="13">Euskara</option><option value="12">Galego</option><option value="10">Valencià</option><option disabled value=""></option><option value="203">&#268;e&#353;tina</option> ÄeÅ¡tina Czech
+	<option value="208">Dansk</option><option value="5">Deutsch</option><option value="233">Eesti keel</option> Estonian
+							<option value="300">&#949;&#955;&#955;&#951;&#957;&#953;&#954;&#940;</option> Greek ÎµÎ»Î»Î·Î½Î¹ÎºÎ¬
+							<option value="2">English</option><option value="4">Français</option><option value="191">Hrvatski</option>  Croatian
+							
+	<option value="428">Latvie&#353;u valoda</option> Latvian LatvieÅ¡u valoda
+							<option value="440">Lietuvi&#371; kalba</option> Lithuanian Å³
+							<option value="348">Magyar</option> Hungarian
+							<option value="470">Malti</option> Maltese
+							<option value="6">Nederlands</option><option value="7">Italiano</option><option value="642">Român&#259;</option> Romanian romÃ¢nÄƒ
+							<option value="8">Svenska</option><option value="11">Polski</option><option value="9">Português</option><option value="14">Aragonês</option><option value="643">&#1088;&#1091;&#769;&#1089;&#1089;&#1082;&#1080;&#1081; &#1103;&#1079;&#1099;&#769;&#1082;</option> Russkiy Ã‘â‚¬Ã‘Æ’Ã‘ÂÃ‘ÂÃÂºÃÂ¸ÃÂ¹
+							<option value="100">&#1073;&#1098;&#1083;&#1075;&#1072;&#1088;&#1089;&#1082;&#1080; &#1077;&#1079;&#1080;&#1082;</option> Bulgaro Bu&#322;garskiy
+							<option value="705">Slovenski jezik</option> Slovenian
+							<option value="703">Slovenský jazyk</option> Slovak slovenskÃ½ jazyk
+							<option value="246">Suomi</option> Finnish
+							<option value="792">Türkçe</option><option value="356">Hindi</option></select>
+<div class="clear-fix"></div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+			//funciones utf8 encode y decode para mover al utilsis
+			function encode_utf8( s ) {
+			  return unescape( encodeURIComponent( s ) );
+			}
+			
+			function decode_utf8( s ) {
+			  return decodeURIComponent( escape( s ) );
+			}
+
+
+			// carga cadenas del idioma seleccionado:
+			function cambiarIdioma(lang, page) {
+			/* /sis */ 
+				var laUrl = "/sis/SerSvlLiterales";
+/*				var laUrl = "/sis/SerSvlLiterales?comercio=999008881&terminal=214&pagina=RSisSelFormaPago&idioma=3";*/
+				var losDatos = { comercio: '', terminal: '' ,pagina: 'RSisException', idioma: lang };
+				$.ajax( { url: laUrl, type: "POST", data: losDatos, dataType: "json", success: cambioIdiomaOK, error: cambioIdiomaKO} ); /* , contentType: "application/x-www-form-urlencoded;charset=UTF-" UTF-8 ISO-8859-15 */
+				$('#iframeIupay').attr({'src': '/sis/html/iuPayMockUp_' + lang + '.html'});
+			}
+
+			function inicializaCambioIdioma() {
+				$( ".trigger" ).changed = false;
+/*				$( ".trigger" ).on( "click", cambiarIdioma($( ".lang" ).val(), 'RSisException') );*/
+			}
+
+			function cambioIdiomaOK( obj, textStatus, jqXHR ) {
+				if (obj) {
+						var listaLngIds = document.querySelectorAll('[lngid]');
+						for (var i = 0; i < listaLngIds.length; i++) { 
+							$.each( obj, function( key, value ) {
+								if (listaLngIds[i].getAttribute("lngid") == key) {
+//									alert(decode_utf8(value));
+									if (listaLngIds[i].innerHTML) {
+										if (listaLngIds[i].innerHTML.length>0 && listaLngIds[i].innerHTML[0] != '?') {
+											listaLngIds[i].innerHTML = decodeURIComponent(value).replace(/\+/g, ' ' );
+										} else if (listaLngIds[i].innerHTML.length == 0) {
+											listaLngIds[i].innerHTML = decodeURIComponent(value).replace(/\+/g, ' ' );
+										}
+									}
+									if (listaLngIds[i].hasAttribute("value")) {
+										if (listaLngIds[i].getAttribute("value").length>0 && listaLngIds[i].getAttribute("value")[0] != '?') {
+											$(listaLngIds[i]).attr({
+												value: decodeURIComponent(value).replace(/\+/g, ' ' )
+											});
+										}
+									}
+									if (listaLngIds[i].hasAttribute("alt")) {
+										$(listaLngIds[i]).attr({
+											alt: decodeURIComponent(value).replace(/\+/g, ' ' ),
+											title: decodeURIComponent(value).replace(/\+/g, ' ' )
+										});
+									}
+								} else if (key == 'monthmonth') {
+									if (document.getElementById("cad1")) {
+										document.getElementById("cad1").placeholder = decodeURIComponent(value).replace(/\+/g, ' ' );
+									}
+									if (document.getElementById("cad1_upi")) {
+										document.getElementById("cad1_upi").placeholder = decodeURIComponent(value).replace(/\+/g, ' ' );
+									}
+								} else if (key == 'yearyear') {
+									if (document.getElementById("cad2")) {
+										document.getElementById("cad2").placeholder = decodeURIComponent(value).replace(/\+/g, ' ' );
+									}
+									if (document.getElementById("cad2_upi")) {
+										document.getElementById("cad2_upi").placeholder = decodeURIComponent(value).replace(/\+/g, ' ' );
+									}
+								} 
+							});
+						}
+					//ahora actualizamos los errores
+					if (errores) {
+						for (var i = 0; i < errores.length; i++) { 
+							$.each( obj, function( key, value ) {
+								if (key.substr(0,6) == 'error-') {
+									var msgerror = key.substr(6, key.length);
+									if (errores[i][0] == msgerror) {
+										errores[i][1] = decodeURIComponent(value).replace(/\+/g, ' ' );
+									}
+								}
+							});
+						}
+					}
+				}
+			}
+
+			function cambioIdiomaKO(jqXHR, textStatus, errorThrown ) {
+//				alert('cambio idioma KO');
+				alert(textStatus + '\n\n' + errorThrown.name + '\n\n' + errorThrown.message + '\n\n' + errorThrown.description);
+			}
+			
+          </script>
+</header>
+<ol class="steps-wr">
+<li id="s-method" class="step ">
+<span class="num">1</span>
+<p lngid="seleccioneMetodoPago" tittle="" class="s-text">Seleccione método de pago</p>
+</li>
+<li id="s-auth" class="step ">
+<span class="num">2</span>
+<p lngid="comprobacionAutenticacion" class="s-text">Comprobación autenticación</p>
+</li>
+<li id="s-connect" class="step ">
+<span class="num">3</span>
+<p lngid="solicitandoAutorizacion" class="s-text">Solicitando Autorización</p>
+</li>
+<li id="s-result" class="step active">
+<label type="hidden" for="s-result" value="Paso 4. Resultado de la transacciï¿½n"></label><span class="num">4</span>
+<p lngid="resultadoTransaccion" class="s-text">Resultado Transacción</p>
+</li>
+</ol>
+<div class="clear-fix"></div>
+<div id="body">
+<div class="col-wr left result">
+<div class="ticket-mod-wr">
+<div class="datosDeLaOperacion">
+<h1 class="datosDeLaOperacion" lngid="datosDeLaOperacion">Datos de la operación</h1>
+</div>
+<div class="ticket-header">
+<div class="circle half-circlel"></div>
+<div class="circle half-circler"></div>
+<div class="price">
+<div class="left">
+<p lngid="importe">Importe</p>
+</div>
+<div class="right">
+<p>0&nbsp;
+										Sin Asignar</p>
+</div>
+<br class="clear-fix">
+</div>
+</div>
+<div class="ticket-info">
+<table class="table-condensed">
+<tbody>
+<tr id="filaNombreComercio">
+<td lngid="comercio" class="text">Código Comercio:</td><td class="numeric"> ()
+                    	</td>
+</tr>
+<tr id="filaCodigoComercio">
+<td lngid="terminal" class="text">Terminal:</td><td class="numeric">141249086-100</td>
+</tr>
+<tr id="filaNumeroPedido">
+<td lngid="pedido" class="text">Número pedido:</td><td class="numeric"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="col-wr right">
+<div class="result-mod-wr">
+<div class="result-header">
+<div class="result-code error">
+<div>
+<h1 lngid="noSePuedeRealizarOperacion">No se puede realizar la operación</h1>
+<h2>Error en datos enviados. Contacte con su comercio. (SIS0434)</h2>
+<!--SIS0434:-->
+</div>
+</div>
+</div>
+<div id="result-info" class="result-info">
+<table class="tableresults">
+<tbody id="bodyTableresults"></tbody>
+<div style="display: none;" class="emptyDataError" id="emptyDataError">
+<div style="width: 100%; height: 140px; background-repeat: no-repeat;" class="operation-ko-gr"></div>
+<div id="result-code" class="result-code error">
+<div>
+<h1 lngid="noSePuedeRealizarOperacion">No se puede realizar la operación</h1>
+<h2>Error en datos enviados. Contacte con su comercio. (SIS0434)</h2>
+<!--SIS0434:-->
+</div>
+</div>
+</div>
+</table>
+</div>
+</div>
+<div class="preft">
+<div class="col-wr buttons-wr right">
+<input type="button" class="btn btn-lg btn-print" value="Imprimir" onClick="javascript:imprimir();" alt="Imprimir" lngid="imprimir"><input type="button" class="btn btn-lg btn-continue" value="Continuar" onClick="document.location.href=unescape('javascript:window.close();');" alt="Continuar" lngid="continuar">
+<form method="get" action="" name="botones"></form>
+</div>
+<div class="clear-fix"></div>
+</div>
+</div>
+</div>
+</form>
+<footer id="footer">
+<div id="footerGeneral">
+<div class="copyright">
+<center>
+<text lngid="copyright">
+				                    	(c) 2025
+				                     Redsys Servicios de Procesamiento. SL - Todos los derechos reservados.</text>
+</center>
+</div>
+<p lngid="powered" class="powered">Powered by Redsys</p>
+</div>
+</footer>
+</div>
+<div class="modal ventanaPoliticaCookies" id="modal">
+<div class="modal-content">
+<div class="politicaCookiesBox">
+<h2 tabindex="-1">POLÍTICA DE COOKIES</h2>
+<div class="politicaCookiesBoxContent politicaCookiesTextBox">
+<h3>1. Definición y función genérica de las cookies</h3>
+<p>Para poder almacenar en este dispositivo el identificador asociado a la tarjeta o al número de teléfono empleado por el usuario, según corresponda en cada caso, y en caso de que así se seleccione, este sitio web, operado por Redsys Servicios de Procesamiento, S.L. (con C.I.F. B-85955367 y domicilio social en Madrid, calle Francisco Sancha, n.º 12), como procesador de pago de las entidades financieras, utilizará una cookie, que funciona como un fichero que se descarga en el dispositivo del usuario y que permite registrar su actividad, almacenar y recuperar cierta información.</p>
+<h3>2. Tipos y finalidad de las cookies utilizadas</h3>
+<div class="politicaCookiesBoxContent">
+<p>El tipo de cookie utilizada en este sitio web, en caso de que se seleccione por el usuario alguna de las opciones antes indicadas, y el uso concreto de esta es el que se describe a continuación:</p>
+<ul>
+<li>
+<u> Según la entidad que la gestiona:</u> Es una cookie propia. Estas cookies son enviadas al dispositivo del usuario desde un equipo o dominio gestionado porel procesador de Redsys Servicios de Procesamiento, S.L., siendo esta a su vez, quien gestiona la información obtenida por medio de estas cookies para atender la solicitud del usuario.</li>
+<li>
+<u>Según la finalidad para la que se usa: </u>Es una cookie de preferencia o personalización. Estas cookies son aquellas que permiten recordar información para que el usuario acceda al servicio con determinadas características que puedan diferencia su experiencia de uso. </li>
+<li>
+<u> Según el plazo de tiempo que permanece activada: </u> Es una cookie persistente. Estas cookies son aquellas en las que los datos siguen almacenados en el dispositivo, y se puede acceder a ellos y ser tratados, durante un periodo de tiempo superior a la sesión.</li>
+</ul>
+<table class="default">
+<tr>
+<th>Nombre</th><th>Proveedor</th><th>Caducidad</th><th>Finalidad</th>
+</tr>
+<tr>
+<td>RTR_IDL</td><td>Redsys</td><td>6 meses</td><td>Sirve para almacenar un identificador asociado a la tarjeta o al número de teléfono empleado por el usuario como método de pago, según corresponda en cada caso, y recordarlo para futuras compras que se realicen sobre esta pasarela de pago, y a través del mismo dispositivo y explorador web.</td>
+</tr>
+</table>
+</div>
+<h3>3. Forma de aceptar, denegar, revocar el consentimiento o eliminar las cookies</h3>
+<div class="politicaCookiesBoxContent">
+<p>Cuando el usuario hace uso de este sitio web y al introducir sus datos de pago, selecciona la opción de &ldquo;Recordar tarjeta en este dispositivo&rdquo; &rdquo; o &ldquo;Recordar este teléfono como método de pago&rdquo;, según corresponda en cada caso, ello implica la aceptación de la cookie informada en virtud de esta Política de Cookies.</p>
+<p>El usuario podrá eliminar el consentimiento previamente otorgado seleccionado la opción de &ldquo;Eliminar este método de pago guardado&rdquo;.</p>
+<p>De igual modo, puede bloquear la cookie en el navegador web utilizado. Estos ajustes suelen encontrarse en las &ldquo;opciones&rdquo; o &ldquo;preferencias&rdquo; de su navegador. Le orientamos a continuación de los pasos para acceder al menú de configuración de cookies en los siguientes navegadores principales:</p>
+<ul>
+<li>Internet Explorer: Herramientas -&gt; Opciones de Internet -&gt; Privacidad -&gt;Configuración. Para más información, puede consultar el soporte de Microsoft o la Ayuda del navegador.</li>
+<li> Firefox: Herramientas -&gt; Opciones -&gt; Privacidad -&gt; Historial -&gt; Configuración Personalizada. Para más información, puede consultar el soporte de Mozilla o la Ayuda del navegador. </li>
+<li> Chrome: Configuración - &gt; Mostrar opciones avanzadas - &gt; Privacidad -&gt; Configuración de contenido. Para más información, puede consultar el soporte de Google o la Ayuda del navegador.</li>
+<li> Safari: Preferencias -&gt; Seguridad. Para más información, puede consultar el soporte de Apple o la Ayuda del navegador. </li>
+</ul>
+</div>
+<h3>4. Información sobre destinatarios de los datos</h3>
+<div class="politicaCookiesBoxContent">
+<p>Salvo en caso de obligación legal, los datos del usuario no serán comunicados a terceros ni serán transferidos a terceros países u organizaciones internacionales. </p>
+</div>
+<h3>5. Cambios en la Política de Cookies</h3>
+<div class="politicaCookiesBoxContent">
+<p>En caso de que se introduzcan modificaciones en la presente Política de Cookies como consecuencia de cambios en los fines de uso perseguidos por esta u otros motivos, se informará debidamente al usuario y se le solicitará la renovación del consentimiento o, en su caso, la toma de una nueva decisión sobre las cookies. </p>
+<p>A estos efectos, la solicitud del nuevo consentimiento se realizará cuando el usuario acceda a este sitio web por primera vez tras la modificación de la Política.</p>
+</div>
+</div>
+<input type="button" id="acceptModal" class="btn btn-lg btn-modal" value="Cerrar" alt="Cerrar" onClick="javascript:cerrarModal(&quot;ventanaPoliticaCookies&quot;);return false">
+</div>
+</div>
+</div>
+</body>
+</html>

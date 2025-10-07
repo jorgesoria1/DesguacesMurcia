@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Página Intermedia Redsys</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .data-item { margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px; }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { background-color: #218838; }
+        .redsys-button { background-color: #dc3545; }
+        .redsys-button:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Página Intermedia de Pago Redsys</h1>
+        
+        <div class="info">
+            <strong>📋 Instrucciones de Prueba:</strong><br>
+            1. Simular datos de sessionStorage del checkout<br>
+            2. Verificar que la página intermedia los recibe correctamente<br>
+            3. Probar el envío a Redsys
+        </div>
+
+        <h2>📊 Estado de Datos</h2>
+        <div id="dataStatus"></div>
+
+        <h2>🔍 Datos Recibidos</h2>
+        <div id="dataDisplay"></div>
+
+        <h2>🚀 Acciones de Prueba</h2>
+        <button onclick="simulateCheckoutData()">1. Simular Datos del Checkout</button>
+        <button onclick="testDataRetrieval()">2. Probar Recuperación de Datos</button>
+        <button onclick="testRedsysRedirect()" class="redsys-button">3. Enviar a Redsys (Test)</button>
+        <button onclick="clearData()">🗑️ Limpiar Datos</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Simular datos que enviaría el checkout
+        function simulateCheckoutData() {
+            const testData = {
+                actionUrl: "https://sis-t.redsys.es:25443/sis/realizarPago",
+                merchantParameters: "eyJEc19NZXJjaGFudF9BbW91bnQiOiIxMjkyMCIsIkRzX01lcmNoYW50X09yZGVyIjoiMjAyNTA3MzExNjcwIiwiRHNfTWVyY2hhbnRfTWVyY2hhbnRDb2RlIjoiMTQxMjQ5MDg2IiwiRHNfTWVyY2hhbnRfQ3VycmVuY3kiOiI5NzgiLCJEc19NZXJjaGFudF9UcmFuc2FjdGlvblR5cGUiOiIwIiwiRHNfTWVyY2hhbnRfVGVybWluYWwiOiIxMDAiLCJEc19NZXJjaGFudF9NZXJjaGFudFVSTCI6IjI3MWE0OTQ1LTVhZWQtNDI4My04MTc1LTVhMDVkZTVlZjI4Yy0wMC02dzc0NTJhd2UybzQud29yZi5yZXBsaXQuZGV2L2FwaS9wYXltZW50L3JlZHN5cy9jYWxsYmFjayIsIkRzX01lcmNoYW50X1VybE9LIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwL3BheW1lbnQvc3VjY2VzcyIsIkRzX01lcmNoYW50X1VybEtPIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwL3BheW1lbnQvZmFpbHVyZSIsIkRzX01lcmNoYW50X0NvbnN1bWVyTGFuZ3VhZ2UiOiIwMDEiLCJEc19NZXJjaGFudF9Qcm9kdWN0RGVzY3JpcHRpb24iOiJDb21wcmEgZW4gRGVzZ3VhY2UgTXVyY2lhIiwiRHNfTWVyY2hhbnRfTWVyY2hhbnREYXRhIjoie1wib3JkZXJJZFwiOnVuZGVmaW5lZCxcInJlZmVyZW5jZVwiOlwiUk5NMzk4MTI5NzIzOTE2NzBcIn0ifQ==",
+                signature: "cLZkx5wAGR9H4fz0Ly5YJ0OA3XBcYQsXzNCaGact6xk=",
+                orderNumber: "RNM39812972391670",
+                redsysOrderNumber: "202507311670",
+                amount: 12920,
+                reference: "RNM39812972391670",
+                totalAmount: 129.20
+            };
+
+            // Guardar en sessionStorage como lo haría el checkout
+            sessionStorage.setItem('redsysPaymentData', JSON.stringify(testData));
+            
+            // También simular backup del carrito
+            const cartBackup = [
+                {
+                    id: Date.now(),
+                    partId: 10490007,
+                    quantity: 1,
+                    price: 125,
+                    partName: "DIFERENCIAL TRASERO",
+                    partFamily: "CAMBIO / EMBRAGUE",
+                    partReference: "7525201",
+                    partCode: "0030011",
+                    partWeight: 4000,
+                    idVehiculo: -1945888936
+                }
+            ];
+            sessionStorage.setItem('cartBackup', JSON.stringify(cartBackup));
+
+            updateStatus('✅ Datos simulados guardados en sessionStorage', 'success');
+            testDataRetrieval();
+        }
+
+        // Probar recuperación de datos como lo haría RedsysRedirect.tsx
+        function testDataRetrieval() {
+            try {
+                const redsysDataString = sessionStorage.getItem('redsysPaymentData');
+                const cartBackupString = sessionStorage.getItem('cartBackup');
+
+                if (!redsysDataString) {
+                    updateStatus('❌ No se encontraron datos de pago en sessionStorage', 'error');
+                    return;
+                }
+
+                const redsysData = JSON.parse(redsysDataString);
+                const cartBackup = cartBackupString ? JSON.parse(cartBackupString) : null;
+
+                updateStatus('✅ Datos recuperados correctamente de sessionStorage', 'success');
+                
+                displayData(redsysData, cartBackup);
+                
+            } catch (error) {
+                updateStatus('❌ Error al recuperar datos: ' + error.message, 'error');
+            }
+        }
+
+        // Mostrar datos recuperados
+        function displayData(redsysData, cartBackup) {
+            const display = document.getElementById('dataDisplay');
+            
+            let html = '<h3>💳 Datos de Pago Redsys:</h3>';
+            
+            // Datos principales
+            html += `<div class="data-item"><strong>Pedido:</strong> ${redsysData.reference || redsysData.orderNumber || 'N/A'}</div>`;
+            html += `<div class="data-item"><strong>Importe:</strong> ${redsysData.totalAmount ? redsysData.totalAmount.toFixed(2) : (redsysData.amount ? (redsysData.amount / 100).toFixed(2) : '0.00')}€</div>`;
+            html += `<div class="data-item"><strong>Número Redsys:</strong> ${redsysData.redsysOrderNumber}</div>`;
+            html += `<div class="data-item"><strong>URL Acción:</strong> ${redsysData.actionUrl}</div>`;
+            html += `<div class="data-item"><strong>Parámetros (length):</strong> ${redsysData.merchantParameters?.length || 0} caracteres</div>`;
+            html += `<div class="data-item"><strong>Firma:</strong> ${redsysData.signature?.substring(0, 20)}...</div>`;
+            
+            if (cartBackup) {
+                html += '<h3>🛒 Backup del Carrito:</h3>';
+                html += `<div class="data-item"><strong>Artículos en backup:</strong> ${cartBackup.length}</div>`;
+                cartBackup.forEach((item, index) => {
+                    html += `<div class="data-item">
+                        <strong>Artículo ${index + 1}:</strong> ${item.partName} - ${item.price}€
+                        <br><small>ID: ${item.partId}, Código: ${item.partCode}</small>
+                    </div>`;
+                });
+            }
+            
+            display.innerHTML = html;
+        }
+
+        // Simular envío a Redsys
+        function testRedsysRedirect() {
+            const redsysDataString = sessionStorage.getItem('redsysPaymentData');
+            
+            if (!redsysDataString) {
+                updateStatus('❌ No hay datos para enviar a Redsys', 'error');
+                return;
+            }
+
+            const redsysData = JSON.parse(redsysDataString);
+            
+            // Crear formulario como lo hace RedsysRedirect.tsx
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = redsysData.actionUrl;
+            form.style.display = 'none';
+
+            // Añadir campos del formulario
+            const signatureVersionInput = document.createElement('input');
+            signatureVersionInput.type = 'hidden';
+            signatureVersionInput.name = 'Ds_SignatureVersion';
+            signatureVersionInput.value = 'HMAC_SHA256_V1';
+
+            const parametersInput = document.createElement('input');
+            parametersInput.type = 'hidden';
+            parametersInput.name = 'Ds_MerchantParameters';
+            parametersInput.value = redsysData.merchantParameters;
+
+            const signatureInput = document.createElement('input');
+            signatureInput.type = 'hidden';
+            signatureInput.name = 'Ds_Signature';
+            signatureInput.value = redsysData.signature;
+
+            form.appendChild(signatureVersionInput);
+            form.appendChild(parametersInput);
+            form.appendChild(signatureInput);
+
+            document.body.appendChild(form);
+
+            updateStatus('🚨 ATENCIÓN: Esto enviaría el formulario a Redsys REAL. Cancelando por seguridad...', 'error');
+            
+            // Mostrar lo que se enviaría en lugar de enviarlo realmente
+            let html = '<h3>📤 Datos que se enviarían a Redsys:</h3>';
+            html += `<div class="data-item"><strong>Action URL:</strong> ${form.action}</div>`;
+            html += `<div class="data-item"><strong>Ds_SignatureVersion:</strong> ${signatureVersionInput.value}</div>`;
+            html += `<div class="data-item"><strong>Ds_MerchantParameters:</strong> ${parametersInput.value.substring(0, 50)}...</div>`;
+            html += `<div class="data-item"><strong>Ds_Signature:</strong> ${signatureInput.value}</div>`;
+            
+            document.getElementById('results').innerHTML = html;
+            
+            // Limpiar el formulario
+            document.body.removeChild(form);
+        }
+
+        // Limpiar datos
+        function clearData() {
+            sessionStorage.removeItem('redsysPaymentData');
+            sessionStorage.removeItem('cartBackup');
+            updateStatus('🗑️ Datos eliminados de sessionStorage', 'success');
+            document.getElementById('dataDisplay').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Actualizar estado
+        function updateStatus(message, type) {
+            const status = document.getElementById('dataStatus');
+            status.className = type;
+            status.innerHTML = `<strong>${message}</strong>`;
+        }
+
+        // Inicializar
+        window.onload = function() {
+            updateStatus('🔄 Listo para pruebas. Comience con el paso 1.', 'info');
+        };
+    </script>
+</body>
+</html>

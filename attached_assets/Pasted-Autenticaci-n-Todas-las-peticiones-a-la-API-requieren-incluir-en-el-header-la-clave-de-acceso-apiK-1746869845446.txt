@@ -1,0 +1,78 @@
+Autenticación
+Todas las peticiones a la API requieren incluir en el header la clave de acceso:
+
+apiKey: tu API key proporcionada por Metasync.
+Parámetros comunes
+
+fecha (Header): fecha a partir de la cual se desean obtener cambios o conteos, en formato DD/MM/YYYY HH:MM:SS (por ejemplo: 20/12/2023 21:29:56).
+Paginación (para endpoints de cambios):
+lastid (Header, int32): identificador de la última entidad recibida; usar 0 para la primera llamada.
+offset (Header, int32): número de registros a recuperar (máx. 1000).
+Si en la respuesta count < offset o count = 0, se ha llegado al final.
+idempresa (Header, int32): opcional en endpoints “Empresa” para filtrar por una empresa específica.
+Endpoints
+
+RecuperarCambiosCanal (GET)
+https://apis.metasync.com/Almacen/RecuperarCambiosCanal
+Headers: apiKey, fecha, lastid, offset
+Descripción: Obtiene piezas y vehículos modificados en todo el canal desde la fecha indicada.
+Respuesta: RespuestaCambios con listas de PiezaExport, VehiculoExport y objeto Paginacion.
+RecuperarCambiosCanalEmpresa (GET)
+https://apis.metasync.com/Almacen/RecuperarCambiosCanalEmpresa
+Headers: apiKey, fecha, lastid, offset, idempresa
+Descripción: Igual que el anterior, pero limitado a las piezas y vehículos de una empresa.
+RecuperarCambiosVehiculosCanal (GET)
+https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanal
+Headers: apiKey, fecha, lastid, offset
+Descripción: Obtiene sólo los vehículos modificados en todo el canal desde la fecha indicada.
+Respuesta: RespuestaCambiosVehiculos con lista de VehiculoExport y Paginacion.
+RecuperarCambiosVehiculosCanalEmpresa (GET)
+https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanalEmpresa
+Headers: apiKey, fecha, lastid, offset, idempresa
+Descripción: Igual que el anterior, pero limitado a una empresa.
+ConteoPiezas (GET)
+https://apis.metasync.com/Almacen/ConteoPiezas
+Headers: apiKey, fecha
+Descripción: Devuelve el número total de piezas introducidas o actualizadas desde la fecha dada. 
+
+ConteoPiezasEmpresa (GET)
+https://apis.metasync.com/Almacen/ConteoPiezasEmpresa
+Headers: apiKey, fecha, idempresa
+Descripción: Igual que el anterior, pero para una empresa específica. 
+
+ConteoVehiculos (GET)
+https://apis.metasync.com/Almacen/ConteoVehiculos
+Headers: apiKey, fecha
+Descripción: Devuelve el número total de vehículos introducidos o actualizados desde la fecha dada. 
+
+ConteoVehiculosEmpresa (GET)
+https://apis.metasync.com/Almacen/ConteoVehiculosEmpresa
+Headers: apiKey, fecha, idempresa
+Descripción: Igual que el anterior, pero para una empresa específica. 
+
+Modelos de datos
+
+PiezaExport:
+idEmpresa, refLocal, idVehiculo, codFamilia, descripcionFamilia
+codArticulo, descripcionArticulo, codVersion, refPrincipal
+precio (entero x 100), anyoStock, peso, ubicacion
+observaciones, reserva, tipoMaterial, urlsImgs[], fechaMod
+
+
+VehiculoExport:
+idLocal, idEmpresa, fechaMod, codigo, estado[]
+bastidor, matricula, color, kilometraje, anyoVehiculo
+codigoMotor, codigoCambio, observaciones, urlsImgs[]
+codMarca, nombreMarca, codModelo, nombreModelo
+codVersion, nombreVersion, tipoVersion, combustible
+puertas, anyoInicio, anyoFin, tiposMotor[], potenciaHP, potenciaKw, cilindrada
+transmision, alimentacion, numMarchas, rvCode, ktype
+
+
+Paginacion (en respuestas de cambios):
+total (int): total de registros disponibles
+count (int): número de registros en esta llamada
+offset (int): offset aplicado
+lastId (int): id del último registro devuelto (usar para siguiente paginación)
+
+

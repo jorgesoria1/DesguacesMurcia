@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="95" fill="#FFFFFF" stroke="#D1D1D1" stroke-width="1"/>
+  <circle cx="100" cy="100" r="85" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+  <circle cx="100" cy="100" r="78" fill="#FFFFFF"/>
+  <!-- Estrella de Mercedes-Benz -->
+  <path d="M100,22 L115,95 L178,95 L100,100 L100,22 Z" fill="#C0C0C0" stroke="#777777" stroke-width="0.5"/>
+  <path d="M100,22 L85,95 L22,95 L100,100 L100,22 Z" fill="#C0C0C0" stroke="#777777" stroke-width="0.5"/>
+  <path d="M100,178 L100,100 L22,105 L85,105 L100,178 Z" fill="#C0C0C0" stroke="#777777" stroke-width="0.5"/>
+  <path d="M100,178 L100,100 L178,105 L115,105 L100,178 Z" fill="#C0C0C0" stroke="#777777" stroke-width="0.5"/>
+  <circle cx="100" cy="100" r="20" fill="#FFFFFF" stroke="#777777" stroke-width="0.5"/>
+</svg>

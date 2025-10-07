@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    
+    <!-- Script para suprimir errores de consola inmediatamente -->
+    <script>
+      // Filtro de errores aplicado antes de cualquier otra carga
+      (function() {
+        if (typeof window !== 'undefined') {
+          const originalError = console.error;
+          console.error = function(...args) {
+            const message = args.join(' ');
+            const suppressedPatterns = [
+              'Failed to load resource: the server responded with a status of 401',
+              'Failed to load resource: the server responded with a status of 404',
+              'favicon.ico',
+              '/api/auth/me',
+              'status of 401',
+              'status of 404'
+            ];
+            
+            const shouldSuppress = suppressedPatterns.some(pattern => 
+              message.toLowerCase().includes(pattern.toLowerCase())
+            );
+            
+            if (!shouldSuppress) {
+              originalError.apply(console, args);
+            }
+          };
+          
+          // Interceptar eventos de error globales
+          window.addEventListener('error', function(event) {
+            if (event.message && (
+              event.message.includes('favicon.ico') ||
+              event.message.includes('401') ||
+              event.message.includes('404') ||
+              event.message.includes('/api/auth/me')
+            )) {
+              event.preventDefault();
+              event.stopPropagation();
+              return false;
+            }
+          }, true);
+        }
+      })();
+    </script>
+    <title>Desguace Murcia - Repuestos Originales Vehículos | Garantía 3 Meses</title>
+    <meta name="description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses. Envío península desde 4,99€." />
+    <meta name="keywords" content="desguace murcia, repuestos vehículos, piezas coche, recambios originales, garantía 3 meses" />
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Desguace Murcia - Repuestos Originales Vehículos | Garantía 3 Meses" />
+    <meta property="og:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses. Envío península desde 4,99€." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop" />
+    <meta property="og:url" content="https://desguacemurcia.com/" />
+    <meta property="og:site_name" content="Desguace Murcia" />
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Desguace Murcia - Repuestos Originales Vehículos | Garantía 3 Meses" />
+    <meta name="twitter:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses. Envío península desde 4,99€." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn11.metasync.com" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <script type="module" crossorigin src="/assets/index-Dqd1qWe_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BSHw1A1s.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

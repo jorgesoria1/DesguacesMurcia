@@ -1,0 +1,600 @@
+Api Inventario
+
+Descripción ApiInventario
+La Api de Almacén dispone de métodos diferenciales para sincronizar las piezas y vehículos de desguaces en tu canal. Incluyen la recuperación de cambios en el canal, la recuperación de cambios en el canal para una empresa específica, la recuperación de cambios en vehículos para el canal, la recuperación de cambios en vehículos para una empresa específica, conteo de piezas, conteo de piezas para una empresa específica, conteo de vehículos y conteo de vehículos para una empresa específica.
+
+Todos estos métodos requieren el uso de una API key garantizando así la seguridad y la autorización adecuadas para acceder a estas funciones.
+
+Casos de uso
+1 - Si necesitas recuperar las piezas actualizadas a partir de una fecha con sus correspondientes vehiculos en el canal, podrías utilizar el método RecuperarCambiosCanal. Este método requiere el uso de tu Apikey Header, la fecha Header por la cual deseamos obtener piezas a partir de una fecha, un lastid Header para poder navegar por la paginación y un offset para recuperar una cantidad la cual su maximo sería de 1000. Ejemplo
+
+2 - Si deseas obtener piezas actualizadas de una empresa específica, puedes utilizar el método RecuperarCambiosCanalEmpresa. Este método es exáctamente igual al anterior y necesita los mismos parámetros solo que si le pasamos el parámetro opcional idempresa nos devolverá solo piezas y vehiculos de una empresa.
+
+3 - Para obtener los cambios en vehículos para el canal, puedes usar el método RecuperarCambiosVehiculosCanal, pasando tu Apikey por Header , la fecha Header, el lastid que en un principio debe ser 0 y posteriormente utilizar los siguientes lastid para recorrer la paginación y un offset que como máximo será 1000. Ejemplo
+
+4 - Si necesitas recuperar los últimos vehículos actualizados para una empresa específica, puedes utilizar el método RecuperarCambiosVehiculosCanalEmpresa. Este método requerirá tu Apikey por Header , la fecha Header, el lastid que en un principio debe ser 0 y posteriormente utilizar los siguientes lastid para recorrer la paginación, un offset que como máximo será 1000 y un último parámetro opcional idempresa tambien por Header.
+
+5 - Si deseas contar las piezas en el almacén, puedes utilizar el método ConteoPiezas, pasando tu Apikey por Header y una fecha a partir de la cual te gustaria saber cuantas piezas se han introducido o actualizado.
+
+6 - Para realizar un conteo de piezas específicas para una empresa, puedes usar el método ConteoPiezasEmpresa, pasando tu Apikey Header, una fecha a partir de la cual te gustaria saber cuantas piezas se han introducido o actualizado y el idempresa como Header.
+
+7 - Si necesitas contar los vehículos, puedes utilizar el método ConteoVehiculos, pasando tu Apikey por Header y una fecha a partir de la cual obtendrás vechiculos actualizados o vehiculos nuevos.
+
+8 - Para realizar un conteo de vehículos específicos para una empresa, puedes usar el método ConteoVehiculosEmpresa, pasando tu Apikey por Header, una fecha por Header y también el idempresa Header.
+
+RESPUESTAS API ALMACEN
+Genéricos:
+
+200 (OK)
+400 (BadRequest + Mensaje de error)
+500 (Error interno de la API - Mensaje de excepción)
+503 (Error en el servicio - Mensaje por defecto)
+Enums¶
+
+Enum EstadoVehiculo -->  <--
+
+Enum Ubicacion -->  <--
+
+Enum TipoMaterial -->  <--
+
+CLASES APIINVENTARIO¶
+
+CLASE PIEZA¶
+
+Pieza
+public class PiezaExport {
+    public int IdEmpresa { get; set; }
+    public int RefLocal { get; set; }
+    public int IdVehiculo { get; set; }
+    public string CodFamilia { get; set; } = "";
+    public string DescripcionFamilia { get; set; } = "";
+    public string CodArticulo { get; set; } = "";
+    public string DescripcionArticulo { get; set; } = "";
+    public string CodVersion { get; set; } = "";
+    public string RefPrincipal { get; set; } = "";
+    public int Precio { get; set; }
+    public int AnyoStock { get; set; }
+    //public int Cantidad { get; set; }
+    public int Peso { get; set; }
+    public int Ubicacion { get; set; }
+    public string Observaciones { get; set; } = "";
+    public int Reserva { get; set; }
+    public int TipoMaterial { get; set; }
+    public string[] UrlsImgs { get; set; } = new string[0];
+    public DateTime FechaMod { get; set; }
+}
+Ejemplo pieza¶
+
+pieza
+    {
+        "idEmpresa": 1476,
+        "refLocal": 200647,
+        "idVehiculo": -1915379401,
+        "codFamilia": "009",
+        "descripcionFamilia": "ELECTRICIDAD",
+        "codArticulo": "0090060",
+        "descripcionArticulo": "MOTOR ARRANQUE",
+        "codVersion": "01130011B000004",
+        "refPrincipal": "0001314025",
+        "precio": 1640,
+        "anyoStock": 0,
+        "peso": 500,
+        "ubicacion": 1,
+        "observaciones": "",
+        "reserva": 0,
+        "tipoMaterial": 0,
+        "urlsImgs": [
+            "https://cdn11.metasync.com/vbcXn_pop8ELJ1ANDMOCfwZjfqpc0gH-vLS5yJoXaIx_n4pL1GdB0w==",
+            "https://cdn11.metasync.com/lAC69ruOWNYGkT68b9b8zmO5AzY1I6nZI6VMs6n94ng2FzwBkgtXBQ==",
+            "https://cdn11.metasync.com/9wZS0vJrHkXj5b10MpSJnIAX6068ZPmRy1u0D_22quJS-5HKmnBuLA==",
+            "https://cdn11.metasync.com/Z2-lEakumfc0WABvJhrVWjYTSt5zMIHFGhrTYHdRJlc3zq3T0RbkgQ==",
+            "https://cdn11.metasync.com/JALdfFfGpve-YLG316-cbZj--kP28boBchWMdZ5fqIUuoY2L7ysI9A=="
+        ],
+        "fechaMod": "2024-01-30T15:42:33"
+    },
+Info
+Los precios están multiplicados x 100 es decir si una pieza tiene de precio 1000 significa que el precio original es 10€
+
+Explicación pieza¶
+
+Atributo	Tipo	Descripción
+idEmpresa	int32	Identificador de la empresa.
+refLocal	string	Identificador local de la pieza.
+idVehiculo	string	Identificador local del vehículo.
+codFamilia	string	Código de la familia de la pieza (ejemplo: "009").
+descripcionFamilia	string	Descripción de la familia de la pieza (ejemplo: "ELECTRICIDAD").
+codArticulo	string	Código único de la pieza (ejemplo: "0090060").
+descripcionArticulo	string	Descripción del artículo o nombre de la pieza (ejemplo: "MOTOR ARRANQUE").
+codVersion	string	Código de versión de la pieza (ejemplo: "01130011B000004").
+refPrincipal	string	Referencia principal de la pieza (ejemplo: "0001314025").
+precio	number	Precio de la pieza (ejemplo: 1640 el precio real es 16.4 pero se multiplica por 100).
+anyoStock	int32	Año de stock de la pieza (ejemplo: 0 si no se tiene información).
+peso	int32	Peso de la pieza en gramos (ejemplo: 500).
+ubicacion	int32	Ubicación de la pieza.
+observaciones	string	Observaciones adicionales sobre la pieza.
+reserva	int32	Indicador de si la pieza está reservada (ejemplo: 0 para no reservada).
+tipoMaterial	int32	Tipo de material de la pieza (ejemplo: 0).
+urlsImgs	array	Lista de URLs de imágenes representativas de la pieza.
+fechaMod	string	Fecha y hora de la última modificación de la información de la pieza (ejemplo: "2024-01-30T15:42:33").
+CLASE VEHICULO¶
+
+Vehiculo
+public class VehiculoExport {
+    public int IdLocal { get; set; }
+        public int IdEmpresa {get; set; }
+        public DateTime FechaMod { get; set; }
+        public string Codigo { get; set; } = "";
+        public int[] Estado {get; set; } = new int[0];
+        public string Bastidor { get; set; } = "";
+        public string Matricula { get; set; } = "";
+        public string Color { get; set; } = "";
+        public int Kilometraje {get; set; }
+        public int AnyoVehiculo { get; set; }
+        public string CodigoMotor { get; set; } = "";
+        public string CodigoCambio { get; set; } = "";
+        public string Observaciones { get; set; } = "";
+        public string[] UrlsImgs { get; set; } = new string[0];
+        public string CodMarca { get; set; } = "";
+        public string NombreMarca{get; set;} = "";
+        public string CodModelo{get; set;} = "";
+        public string NombreModelo{get; set;} = "";
+        public string CodVersion{get; set;} = "";
+        public string NombreVersion{get; set;} = "";
+        public string? TipoVersion{get; set;}
+        public string? Combustible{get; set;}
+        public int? Puertas{get; set;}
+        public int? AnyoInicio{get; set;}
+        public int? AnyoFin{get; set;}
+        public string[]? TiposMotor{get; set;}
+        public double? PotenciaHP{get; set;}
+        public double? PotenciaKw{get; set;}
+        public double? Cilindrada{get; set;}
+        public string? Transmision{get; set;}
+        public string? Alimentacion{get; set;}
+        public int? NumMarchas{get; set;}
+
+        public string? RVCode{get; set;}
+
+        public string? Ktype{get; set;}
+}
+Ejemplo Vehiculo¶
+
+vehiculo
+    {
+      "idLocal": 49595,
+      "idEmpresa": 1476,
+      "fechaMod": "2024-01-30T15:42:34",
+      "codigo": "10424",
+      "estado": [
+          15,
+          5
+      ],
+      "bastidor": "WBAAL71070CF45890",
+      "matricula": "2658-FFD",
+      "color": "NEGRO",
+      "kilometraje": 0,
+      "anyoVehiculo": 2006,
+      "codigoMotor": "M47D20",
+      "codigoCambio": "",
+      "observaciones": "",
+      "urlsImgs": [
+                "https://cdn11.metasync.com/9QcoK6IHNWwkXAisjXlSocco3IZ94WwjUyYihhJLRMNwnPYqi0JEzw=="
+            ],
+      "codMarca": "01130",
+      "nombreMarca": "BMW",
+      "codModelo": "01130046",
+      "nombreModelo": "SERIE 3 BERLINA (E46)",
+      "codVersion": "011300460080001",
+      "nombreVersion": "320d",
+      "tipoVersion": "BerS",
+      "combustible": "Diesel",
+      "puertas": null,
+      "anyoInicio": 1998,
+      "anyoFin": 2001,
+      "tiposMotor": [
+          "M47D20",
+          "M47204D1"
+      ],
+      "potenciaHP": 136,
+      "potenciaKw": 100,
+      "cilindrada": 1951,
+      "transmision": "Caja de cambios 5 velocidades",
+      "alimentacion": "",
+      "numMarchas": 5,
+      "rvCode": "34242",
+      "ktype": "15638"
+  },
+Explicación vehículo¶
+
+Atributo	Tipo	Descripción
+idLocal	int32	Identificador local del vehículo.
+idEmpresa	int32	Identificador de la empresa propietaria del vehículo.
+fechaMod	string	Fecha y hora de la última modificación de la información del vehículo (ejemplo: "2024-01-30T15:42:34").
+codigo	string	Código único del vehículo.
+estado	array(int32)	Lista de estados del vehículo.(EnTramite, Revisado, Despiezado, Calculado, EnCampa, Destruido, Procesando, Baja, EnVenta, Sideo, ErrorCalculo, Valorado, Descontaminado, Tasado, ErrorAugias, Otros)
+bastidor	string	Número de bastidor del vehículo.
+matricula	string	Número de matrícula del vehículo.
+color	string	Color del vehículo.
+kilometraje	int32	Kilometraje actual del vehículo.
+anyoVehiculo	int32	Año de fabricación del vehículo.
+codigoMotor	string	Código del motor del vehículo.
+codigoCambio	string	Código de cambio del vehículo.
+observaciones	string	Observaciones adicionales sobre el vehículo.
+urlsImgs	array(strings)	Lista de URLs de imágenes representativas del vehículo.
+codMarca	string	Código de marca del vehículo.
+nombreMarca	string	Nombre de la marca del vehículo.
+codModelo	string	Código del modelo del vehículo.
+nombreModelo	string	Nombre del modelo del vehículo.
+codVersion	string	Código de versión del vehículo.
+nombreVersion	string	Nombre de la versión del vehículo.
+tipoVersion	string	Tipo de versión del vehículo.
+combustible	string	Tipo de combustible del vehículo.
+puertas	int32	Número de puertas del vehículo.
+anyoInicio	int32	Año de inicio de producción del vehículo.
+anyoFin	int32	Año de fin de producción del vehículo.
+tiposMotor	array(string)	Lista de tipos de motor del vehículo.
+potenciaHP	int32	Potencia del motor en caballos de fuerza.
+potenciaKw	int32	Potencia del motor en kilovatios.
+cilindrada	int32	Cilindrada del motor.
+transmision	string	Tipo de transmisión del vehículo.
+alimentacion	string	Tipo de alimentación del vehículo.
+numMarchas	int32	Número de marchas de la transmisión del vehículo.
+rvCode	string	Código de versión del catálogo de Recambio Verde
+ktype	string	Identificador unico que hace referencia a la version de ese vehiculo
+CLASE PAGINACION¶
+
+Paginacion
+public class Paginacion
+{
+    public int Count { get; set; }
+    public int Total { get; set; }
+    public int Limit { get; set; }
+    public int Offset { get; set; }
+}
+Ejemplo Paginación¶
+
+Paginación
+    "result_set": {
+        "total": 10696,
+        "count": 1000,
+        "offset": 1000,
+        "lastId": 1946873
+    }
+Explicación Paginación¶
+
+Atributo	Tipo	Descripción
+lastid	int32	Última id de pieza o vehiculo (depende del método) que recibimos, utilizar para iterar sobre la paginación
+offset	int32	Cantidad de datos que deseamos recuperar max 1000
+total	int32	Cantidad total de piezas o vehiculos (depende del método)
+count	int32	Cantidad de datos encontrados en esa iteración max 1000
+Info
+Si el count fuese 0 y estuviesemos recorriendo la paginación habremos llegado al final del inventario.
+
+Si el count fuese < que offset también indicaria que estamos en la última tanda de la paginación.
+
+CLASE RESPUESTACAMBIOS¶
+
+Respuesta Recuperar Cambios Canal
+public class RespuestaCambios
+{
+    public List<PiezaExport>? Piezas { get; set; }
+    public List<VehiculoExport>? Vehiculos { get; set; }
+    public Paginacion? result_set { get; set; }
+}
+CLASE RESPUESTACAMBIOSVEHICULOS¶
+
+Respuesta Recuperar Cambios Vehiculos Canal
+public class RespuestaCambiosVehiculos
+{
+    public List<VehiculoExport>? Vehiculos { get; set; }
+    public Paginacion? result_set { get; set; }
+}
+Metodos ApiInventario¶
+
+º	Endpoint Name	Endpoint type
+1	RecuperarCambiosCanal	Get
+2	RecuperarCambiosCanalEmpresa	Get
+3	RecuperarCambiosVehiculosCanal	Get
+4	RecuperarCambiosVehiculosCanalEmpresa	Get
+5	ConteoPiezas	Get
+6	ConteoPiezasEmpresa	Get
+7	ConteoVehiculos	Get
+8	ConteoVehiculosEmpresa	Get
+RecuperarCambiosCanal¶
+
+Description
+El método RecuperarCambiosCanal permite recuperar información general sobre el inventario de las empresas.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/RecuperarCambiosCanal
+
+Respuesta: -->  <--
+
+Parámetros de RecuperarCambiosCanal:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(your apikey)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener piezas
+lastid	Header	(0)	Required	int32	Utilizar el LastId devuelto en el Result_Set de la Paginación para obtener la siguiente tanda de piezas y sus vehículos
+offset	Header	(0)	Required	int32	Cantidad de piezas que deseamos recuperar con un límite máximo de 1000
+Fecha superior a fechas piezas
+Si la fecha de parámetros es superior a las fechas del inventario obtendrás un resultado vacío parecido a este 
+
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/RecuperarCambiosCanal");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("lastid", lastid.ToString());
+request.AddHeader("offset", offset.ToString());
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+RecuperarCambiosCanalEmpresa¶
+
+Description
+El método RecuperarCambiosCanalEmpresa permite recuperar información general sobre el inventario de las empresas. Proporciona una visión general de las piezas existentes, vehículos y el propio resultado de esa consulta.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/RecuperarCambiosCanalEmpresa
+
+Respuesta: -->  <--
+
+Parámetros de RecuperarCambiosCanalEmpresa:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(your apikey)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener piezas
+lastid	Header	(0)	Required	int32	Utilizar el LastId devuelto en el Result_Set de la Paginación para obtener la siguiente tanda de piezas y sus vehiculos
+offset	Header	(0)	Required	int32	Cantidad de piezas que deseamos recuperar con un límite máximo de 1000
+idempresa	Header	(1476)	Required	int32	Identificador local de la empresa.
+Fecha superior a fechas piezas
+Si la fecha de parámetros es superior a las fechas del inventario obtendrás un resultado vacío parecido a este 
+
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/RecuperarCambiosCanalEmpresa");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("lastid", lastid.ToString());
+request.AddHeader("offset", offset.ToString());
+request.AddHeader("idempresa", idempresa.ToString());
+
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+RecuperarCambiosVehiculosCanal¶
+
+Description
+El método RecuperarCambiosVehiculosCanal permite recuperar información general sobre vehiculos de empresas.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanal
+
+Respuesta: -->  <--
+
+Parámetros de RecuperarCambiosVehiculosCanal:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(MS-5iq5RTxT6EW1BBqTHmGjdK6ZwhQ7C7v9S)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehículos
+lastid	Header	(0)	Required	int32	Utilizar el LastId devuelto en el Result_Set de la Paginación para obtener la siguiente tanda de piezas y sus vehículos
+offset	Header	(0)	Required	int32	Cantidad de piezas que deseamos recuperar con un límite máximo de 1000
+Fecha superior a todos los vehículos
+Si la fecha de parámetros es superior a las fechas de los vehículos obtendrás un resultado vacío parecido a este 
+
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/RecuperarCambiosVehiculosCanal");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("lastid", lastid);
+request.AddHeader("offset", offset);
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+RecuperarCambiosVehiculosCanalEmpresa¶
+
+Description
+El método RecuperarCambiosVehiculosCanalEmpresa permite recuperar información específica de vehículos de una empresa.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/RecuperarCambiosVehiculosCanalEmpresa
+
+Respuesta: -->  <--
+
+Parámetros de RecuperarCambiosVehiculosCanalEmpresa:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(your apikey)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehiculos
+lastid	Header	(0)	Required	int32	Utilizar el LastId devuelto en el Result_Set de la Paginación para obtener la siguiente tanda de piezas y sus vehículos
+offset	Header	(0)	Required	int32	Cantidad de piezas que deseamos recuperar con un límite máximo de 1000
+idempresa	Header	(1476)	Required	int32	Identificador local de la empresa.
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/RecuperarCambiosVehiculosCanalEmpresa");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("lastid", lastid);
+request.AddHeader("offset", offset);
+request.AddHeader("idempresa", idempresa);
+
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+ConteoPiezas¶
+
+Description
+El método ConteoPiezas devuelve la cantidad específica de piezas a partir de una fecha
+
+Info
+Ruta: https://apis.metasync.com/Almacen/ConteoPiezas
+
+Respuesta: -->  <--
+
+Parámetros de ConteoPiezas:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(your apikey)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehiculos
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/ConteoPiezas");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+ConteoPiezasEmpresa¶
+
+Description
+El método {ConteoPiezasEmpresa} devuelve la cantidad específica de piezas a partir de una fecha sobre una empresa
+
+Info
+Ruta: https://apis.metasync.com/Almacen/ConteoPiezasEmpresa
+
+Respuesta: -->  <--
+
+Parámetros de ConteoPiezasEmpresa:
+
+Nombre	Tipo Parametro	Ejemplo		Tipo	Descripción
+apikey	Header	(your apikey)	Required	string	Apikey Canal.
+fecha	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehiculos
+idempresa	Header	(1476)	Required	int32	Id local de la empresa
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/ConteoPiezasEmpresa");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("idempresa", idempresa);
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+ConteoVehiculos¶
+
+Description
+El método ConteoVehiculos la cantidad especifica de vehiculos desde una fecha dada.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/ConteoVehiculos
+
+Response: -->  <--
+
+Parámetros de ConteoVehiculos:
+
+Name	Parameter	Type	Example	Type	Description
+'apikey'	Header	(your apikey)	Required	string	API key Channel
+'fecha'	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehiculos
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/ConteoVehiculos");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+
+var response = await client.GetAsync(request);
+
+return response.Content;
+
+ConteoVehiculosEmpresa¶
+
+Description
+El método ConteoVehiculosEmpresa la cantidad especifica de vehiculos desde una fecha dada sobre una empresa.
+
+Info
+Ruta: https://apis.metasync.com/Almacen/ConteoVehiculosEmpresa
+
+Response: -->  <--
+
+Parámetros de ConteoVehiculosEmpresa:
+
+Name	Parameter	Type	Example	Type	Description
+'apikey'	Header	(your apikey)	Required	string	API key Channel
+'fecha'	Header	(20/12/2023 21:29:56)	Required	string	Fecha a partir de la cual deseamos obtener vehiculos
+'idempresa'	Header	(1476)	Required	int32	Id local de la empresa
+Code exe¶
+
+
+C#
+java
+python
+javascript
+Ruby
+var options = new RestClientOptions("https://apis.metasync.com");
+var client = new RestClient(options);
+var request = new RestRequest("/Almacen/ConteoVehiculosEmpresa");
+request.AddHeader("apiKey", apiKey.ToString());
+request.AddHeader("fecha", fecha.ToString());
+request.AddHeader("idempresa", idempresa);
+
+var response = await client.GetAsync(request);
+
+return response.Content;

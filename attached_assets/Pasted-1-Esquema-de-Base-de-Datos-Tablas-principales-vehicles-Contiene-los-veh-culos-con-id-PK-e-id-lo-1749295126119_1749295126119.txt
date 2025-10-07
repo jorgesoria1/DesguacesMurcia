@@ -1,0 +1,76 @@
+1. Esquema de Base de Datos
+Tablas principales:
+vehicles: Contiene los vehículos con id (PK) e id_local (identificador único del sistema externo)
+parts: Contiene las piezas con id (PK) e id_vehiculo (referencia al id_local del vehículo)
+vehicle_parts: Tabla de relaciones many-to-many entre vehículos y piezas
+Estructura de relación:
+-- En la tabla parts
+id_vehiculo -> vehicles.id_local
+-- En la tabla vehicle_parts
+vehicle_id -> vehicles.id
+part_id -> parts.id
+id_vehiculo_original -> vehicles.id_local (para trazabilidad)
+2. Tipos de Asociación
+A) Asociación Directa (Principal)
+En la tabla parts, el campo id_vehiculo se conecta directamente con vehicles.id_local:
+
+// Desde schema.ts
+export const partsRelations = relations(parts, ({ one, many }) => ({
+  vehicle: one(vehicles, {
+    fields: [parts.idVehiculo],
+    references: [vehicles.idLocal], 
+  }),
+}));
+B) Tabla de Relaciones (vehicle_parts)
+Para relaciones múltiples y trazabilidad:
+
+export const vehicleParts = pgTable("vehicle_parts", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id").references(() => vehicles.id),
+  partId: integer("part_id").references(() => parts.id),
+  idVehiculoOriginal: integer("id_vehiculo_original").notNull(),
+  fechaCreacion: timestamp("fecha_creacion").defaultNow(),
+});
+3. Proceso de Matching Automático
+Criterios de emparejamiento:
+El sistema usa vehicle-matcher.ts para encontrar vehículos compatibles con las piezas usando:
+
+rvCode: Coincidencia exacta con vehicles.id_local
+codVersion: Coincidencia parcial con vehicles.version
+anyoInicio/anyoFin: Rango de años compatible con vehicles.anyo
+puertas: Número de puertas exacto
+Ejemplo del matcher:
+// Si se proporciona rvCode, debe ser coincidencia exacta
+if (rvCode && vehicle.idLocal !== null) {
+  const vehicleIdLocal = vehicle.idLocal.toString();
+  if (vehicleIdLocal !== rvCode) {
+    return false;
+  }
+}
+4. Scripts de Reparación
+Script integral fix-vehicle-part-relations.ts:
+Limpia datos inconsistentes
+Recrea relaciones desde cero
+Actualiza datos de vehículo en piezas
+Realiza matching automático
+Actualiza contadores
+Migración 0003_add_vehicle_data_to_parts.sql:
+Añade campos desnormalizados a parts para optimizar consultas:
+
+vehicle_marca
+vehicle_modelo
+vehicle_version
+vehicle_anyo
+related_vehicles_count
+5. Flujo de Asociación
+Importación inicial: Las piezas llegan con id_vehiculo desde la API externa
+Validación: Se verifica que existe el vehículo con ese id_local
+Creación de relación directa: Se actualiza parts.id_vehiculo
+Creación en vehicle_parts: Se crea registro en tabla de relaciones
+Desnormalización: Se copian datos del vehículo a la pieza
+Matching automático: Para piezas sin vehículo directo, se buscan compatibles
+6. Optimizaciones
+Índices: Creados en campos de búsqueda frecuente
+Contadores: related_vehicles_count para mostrar cuántos vehículos están asociados
+Campos desnormalizados: Datos de vehículo copiados en parts para filtrado rápido
+Este sistema permite tanto relaciones directas (1:1) como múltiples (N:M) entre vehículos y piezas, con capacidad de recovery y matching automático.

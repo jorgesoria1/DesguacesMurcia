@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Page Not Found</title>
+
+<link rel="stylesheet" href="/css/style-v23.css">
+<link rel="icon" href="/img/favicon.png" sizes="48x48">
+<style>
+.p404{padding:50px 10px 0 10px;text-align:center}
+.p404 h1{font-size:28px}
+.p404 h2{margin:15px 0;font-size:24px;font-weight:400}
+.p404 p{font-size:16px;line-height:24px;margin-bottom:30px;color:#707070}
+.find{padding-bottom:12%;max-width:650px;width:95%;margin:0 auto}
+.find-content{border-top:3px solid #EC1300}
+</style>
+</head>
+
+<body>
+<div class="header">
+<div class="header-body">
+<div class="header-logo"><a href="/">Car Logos</a></div>
+<div class="nav">
+<input type="checkbox" id="nav-toggle"/>
+<label for="nav-toggle"><span class="toggle-button"><i></i><i></i><i></i></span></label>
+<div class="nav-content">
+<a href="/">Home</a>
+<a href="/car-brands/">All Brands</a>
+<a href="/reviews/">Reviews</a>
+<a href="/car-quiz/">Quizzes</a>
+<div class="nav-other">
+<span>Other Logos</span>
+<a href="/tire-brands/">Tire Brands</a>
+<a href="/motorcycle-brands/">Motorcycle Brands</a>
+</div>
+</div>
+</div>
+<div class="search"><a href="/search/">Search</a></div>
+</div>
+</div>
+
+<div class="f-letter">
+<a href="/car-brands-a-z/">All</a>
+<a href="/start-with-a/">A</a>    
+<a href="/start-with-b/">B</a>    
+<a href="/start-with-c/">C</a>   
+<a href="/start-with-d/">D</a>   
+<a href="/start-with-e/">E</a>    
+<a href="/start-with-f/">F</a>   
+<a href="/start-with-g/">G</a>  
+<a href="/start-with-h/">H</a>   
+<a href="/start-with-i/">I</a>  
+<a href="/start-with-j/">J</a>  
+<a href="/start-with-k/">K</a>  
+<a href="/start-with-l/">L</a>   
+<a href="/start-with-m/">M</a>     
+<a href="/start-with-n/">N</a>     
+<a href="/start-with-o/">O</a>     
+<a href="/start-with-p/">P</a>    
+<a href="/start-with-q/">Q</a>    
+<a href="/start-with-r/">R</a>   
+<a href="/start-with-s/">S</a>    
+<a href="/start-with-t/">T</a>   
+<a href="/start-with-u/">U</a>    
+<a href="/start-with-v/">V</a>   
+<a href="/start-with-w/">W</a>  
+<a href="/start-with-x/">X</a>  
+<a href="/start-with-y/">Y</a>  
+<a href="/start-with-z/">Z</a>
+</div>
+
+<div class="p404">
+<h1>404: Page Not Found</h1>
+<h2>Sorry, the page you're looking for cannot be found.</h2>
+<p>Please use our site search or the menu above to find what you need.</p>
+</div>
+
+<div class="find">
+<input type="checkbox" id="find-toggle"/>
+<label for="find-toggle"><h3 class="open">Find a Car Brand<span></span></h3></label>
+<div class="find-content">
+<dl class="find-by-cnt">
+<dt>by Country & Region</dt>
+<dd class="eur"><a href="/european-car-brands/">Europe</a></dd>
+<dd class="usa"><a href="/american-car-brands/">USA</a></dd>
+<dd class="jpn"><a href="/japanese-car-brands/">JPN</a></dd>
+<dd class="ger"><a href="/german-car-brands/">GER</a></dd>
+<dd class="ita"><a href="/italian-car-brands/">ITA</a></dd>
+<dd class="uk"><a href="/british-car-brands/">UK</a></dd>
+<dd class="fra"><a href="/french-car-brands/">FRA</a></dd>
+<dd class="kor"><a href="/korean-car-brands/">KOR</a></dd>
+<dd class="chn"><a href="/chinese-car-brands/">CHN</a></dd>
+<dd class="aus"><a href="/australian-car-brands/">AUS</a></dd>
+<dd class="rus"><a href="/russian-car-brands/">RUS</a></dd>
+<dd class="esp"><a href="/spanish-car-brands/">ESP</a></dd>
+<dd class="swe"><a href="/swedish-car-brands/">SWE</a></dd>
+<dd class="ind"><a href="/indian-car-brands/">IND</a></dd>
+<dd class="oth"><a href="/other-countries/">Other</a></dd>
+</dl>
+<dl class="find-by-tag">
+<dt>by Tag</dt>
+<dd><a href="/popular-car-brands/">Popular</a></dd>
+<dd><a href="/luxury-car-brands/">Luxury</a></dd>
+<dd><a href="/sports-car-brands/">Sports Cars</a></dd>
+<dd><a href="/supercar-brands/">Supercars</a></dd>
+<dd><a href="/electric-car-brands/">Electric</a></dd>
+<dd><a href="/truck-brands/">Trucks</a></dd>
+</dl>
+</div>
+</div>
+
+<div class="footer">
+<div class="footer-body">
+<div class="footer-logo">
+<a href="/">CarLogos.org</a>
+<p>"The most comprehensive collection of car logos."</p>
+</div>
+<dl class="footer-nav">
+<dt>Logo Collections</dt>
+<dd><a href="/car-brands/">Car Brands</a></dd>
+<dd><a href="/tire-brands/">Tire Brands</a></dd>
+<dd><a href="/motorcycle-brands/">Motorcycle Brands</a>
+<dt>Other</dt>
+<dd><a href="/reviews/">Reviews</a>
+<dd><a href="/car-quiz/">Quizzes</a>
+</dl>
+<dl class="footer-nav">
+<dt>Quick Links</dt>
+<dd><a href="/car-brands-a-z/">Car Brands A-Z</a>
+<dd><a href="/car-quiz/car-logo-quiz.html">Car Logo Quiz</a>
+<dd><a href="/reviews/largest-car-companies.html">Largest Car Companies</a>
+</dl>
+<div class="write-us">
+<a href="/write-for-us/">Write For Us</a>
+<p>Got a different idea or a unique content? Write down it and send to us. We look forward to your contribution!</p>
+</div>
+</div>
+<div class="copy">
+<div class="copy-info">
+<p>&copy; 2024 www.carlogos.org | <a href="/contact-us/">Contact Us</a></p>
+<p>All images are the property of their respective owners.</p>
+</div>
+</div>
+</div>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VCJW9R054C"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-VCJW9R054C');
+</script>
+
+</body>
+</html>

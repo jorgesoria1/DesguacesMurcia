@@ -1,0 +1,4 @@
+#!/bin/bash
+# Simple start script for production deployment
+export NODE_ENV=production
+exec node production-start.js

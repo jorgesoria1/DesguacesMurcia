@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <script type="module">
+    import { createHotContext } from "/@vite/client";
+    const hot = createHotContext("/__dummy__runtime-error-plugin");
+
+    function sendError(error) {
+        if (!(error instanceof Error)) {
+            error = new Error("(unknown runtime error)");
+        }
+        const serialized = {
+            message: error.message,
+            stack: error.stack,
+        };
+        hot.send("runtime-error-plugin:error", serialized);
+    }
+
+    window.addEventListener("error", (evt) => {
+        sendError(evt.error);
+    });
+
+    window.addEventListener("unhandledrejection", (evt) => {
+        sendError(evt.reason);
+    });
+    </script>
+
+    <script type="module">
+    import RefreshRuntime from "/@react-refresh"
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+    <title>Desguace Murcia - Recambios de Automóvil</title>
+    <meta name="description" content="Desguace Murcia - Venta de recambios de automóvil usados. Encuentra piezas de calidad para tu vehículo al mejor precio."/>
+    <meta name="robots" content="index, follow"/>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    <script type="module">
+    "use strict";
+    (() => {
+        var P = "0.2.7";
+        var T = {
+                HIGHLIGHT_COLOR: "#0079F2",
+                HIGHLIGHT_BG: "#0079F210",
+                ALLOWED_DOMAIN: ".replit.dev"
+            },
+            Q = `
+  [contenteditable] {
+    outline: none !important;
+  }
+
+  [contenteditable]:focus {
+    outline: none !important;
+  }
+`
+
+
+
+
+
+
+
+            ,
+            Z = `
+  .beacon-highlighter {
+    content: '';
+    position: absolute;
+    z-index: ${
+
+
+            Number.MAX_SAFE_INTEGER - 3};
+    box-sizing: border-box;
+    pointer-events: none;
+    outline: 2px dashed ${
+
+            T.HIGHLIGHT_COLOR} !important;
+    outline-offset: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    background: ${
+
+
+
+            T.HIGHLIGHT_BG} !important;
+    opacity: 0;
+  }
+  
+  .beacon-hover-highlighter {
+    position: fixed;
+    z-index: ${
+
+
+
+
+            Number.MAX_SAFE_INTEGER};
+  }
+  
+  .beacon-selected-highlighter {
+    position: fixed;
+    pointer-events: none;
+    outline: 2px solid ${
+
+
+
+
+            T.HIGHLIGHT_COLOR} !important;
+    outline-offset: 3px !important;
+    background: none !important;
+  }
+  
+  .beacon-label {
+    position: absolute;
+    background-color: ${
+
+
+
+
+
+            T.HIGHLIGHT_COLOR};
+    color: #FFFFFF;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transform: translateY(-100%);
+    margin-top: -4px;
+    left: 0;
+    z-index: ${
+
+
+
+
+
+
+
+
+
+
+            Number.MAX_SAFE_INTEGER - 2};
+    pointer-events: none;
+    opacity: 0;
+  }
+  
+  .beacon-hover-label {
+    position: fixed;
+    z-index: ${
+

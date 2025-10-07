@@ -1,0 +1,79 @@
+IMPLEMENTACIÓN EN VENTANA MODAL - DETALLADO:
+1. IMPORTACIÓN DE LA FUNCIÓN
+Línea 15 en OrderDetailViewModal.tsx:
+
+import { getPaymentMethodLabel } from '@/utils/paymentMethods';
+2. UBICACIÓN EXACTA EN EL MODAL
+Líneas 219-226 en OrderDetailViewModal.tsx:
+
+{/* Método de Pago */}
+<div>
+  <p className="text-sm text-gray-600 mb-1">Método de Pago:</p>
+  <Badge variant="outline" className="text-xs whitespace-nowrap">
+    {getPaymentMethodLabel(orderDetail.paymentMethod)}
+  </Badge>
+</div>
+3. CONTEXTO COMPLETO DE LA SECCIÓN
+Se encuentra dentro de la tercera Card del grid (líneas 191-227):
+
+<Card>
+  <CardContent className="pt-6">
+    <div className="flex items-center mb-4">
+      <CreditCard className="h-5 w-5 mr-2 text-gray-500" />
+      <h3 className="font-semibold">Estados del Pedido</h3>
+    </div>
+    
+    {/* Estado de Pago */}
+    <div className="mb-3">
+      <p className="text-sm text-gray-600 mb-1">Estado del Pago:</p>
+      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${paymentInfo.color}`}>
+        {paymentInfo.icon}
+        <span className="ml-2 font-medium">{paymentInfo.label}</span>
+      </div>
+    </div>
+    
+    {/* Estado del Pedido */}
+    <div className="mb-3">
+      <p className="text-sm text-gray-600 mb-1">Estado del Pedido:</p>
+      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${orderStatusInfo.color}`}>
+        {orderStatusInfo.icon}
+        <span className="ml-2 font-medium">{orderStatusInfo.label}</span>
+      </div>
+      {orderStatusInfo.description && (
+        <p className="text-sm text-gray-500 mt-2">{orderStatusInfo.description}</p>
+      )}
+    </div>
+    
+    {/* Método de Pago */}
+    <div>
+      <p className="text-sm text-gray-600 mb-1">Método de Pago:</p>
+      <Badge variant="outline" className="text-xs whitespace-nowrap">
+        {getPaymentMethodLabel(orderDetail.paymentMethod)}
+      </Badge>
+    </div>
+  </CardContent>
+</Card>
+4. ESTRUCTURA VISUAL DEL MODAL:
+Card 1: Fecha del Pedido
+Card 2: Total del Pedido
+Card 3: Estados del Pedido (aquí está el método de pago)
+Estado de Pago (con icono y color)
+Estado del Pedido (con icono y color)
+Método de Pago (Badge outline)
+5. ESTILO Y CLASES APLICADAS:
+<Badge variant="outline" className="text-xs whitespace-nowrap">
+variant="outline": Badge con borde
+text-xs: Texto extra pequeño
+whitespace-nowrap: Evita salto de línea
+6. IMPORTS NECESARIOS:
+import { Badge } from '@/components/ui/badge';
+import { CreditCard } from 'lucide-react';
+import { getPaymentMethodLabel } from '@/utils/paymentMethods';
+RESUMEN PARA REPLICAR EN MODAL:
+Importar getPaymentMethodLabel from '@/utils/paymentMethods'
+Importar Badge component
+Usar dentro de una Card con icono CreditCard
+Estructura: Label + Badge
+Badge con clases: variant="outline" className="text-xs whitespace-nowrap"
+Función aplicada: {getPaymentMethodLabel(orderDetail.paymentMethod)}
+Es una implementación muy simple y limpia: solo un label + un Badge que llama a la función helper para mostrar el método de pago con emoji e idioma español.

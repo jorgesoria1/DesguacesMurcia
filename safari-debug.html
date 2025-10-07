@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safari SEO Debug Test</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .test-result { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007AFF; }
+        .success { background: #d4edda; border-left-color: #28a745; color: #155724; }
+        .error { background: #f8d7da; border-left-color: #dc3545; color: #721c24; }
+        .info { background: #d1ecf1; border-left-color: #17a2b8; color: #0c5460; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; color: #856404; }
+        button { background: #007AFF; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px 5px; }
+        button:hover { background: #0051D5; }
+        #results { margin-top: 20px; }
+        .url-test { background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍎 Safari SEO Debug Test</h1>
+        <p>Este test diagnostica específicamente por qué Safari no recibe el SEO server-side.</p>
+        
+        <div id="browser-info"></div>
+        
+        <button onclick="runFullTest()">🚀 Test Completo Safari SEO</button>
+        <button onclick="testSpecificParts()">🔧 Test Piezas Específicas</button>
+        <button onclick="testServerDirect()">🌐 Test Servidor Directo</button>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        function log(message, type = 'info', showTime = true) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            const timestamp = showTime ? `[${new Date().toLocaleTimeString()}] ` : '';
+            div.innerHTML = `${timestamp}${message}`;
+            results.appendChild(div);
+            console.log(message);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Mostrar información del navegador
+        function showBrowserInfo() {
+            const info = document.getElementById('browser-info');
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            const isPrivate = !navigator.cookieEnabled;
+            
+            info.innerHTML = `
+                <div class="test-result info">
+                    <strong>Browser Info:</strong><br>
+                    User Agent: ${navigator.userAgent}<br>
+                    Safari Detected: ${isSafari ? 'YES' : 'NO'}<br>
+                    Cookies Enabled: ${navigator.cookieEnabled ? 'YES' : 'NO'}<br>
+                    Private Mode: ${isPrivate ? 'POSSIBLY YES' : 'NO'}<br>
+                    Language: ${navigator.language}<br>
+                    Platform: ${navigator.platform}
+                </div>
+            `;
+        }
+        
+        async function testServerDirect() {
+            clearResults();
+            log('🌐 Testing direct server response...', 'info');
+            
+            const testUrls = [
+                '/piezas/retrovisor-izquierdo-fiat-grande-punto-199-629057',
+                '/piezas/bomba-direccion-peugeot-306-35-pt-s1011993-629055',
+                '/piezas/mando-luces-nissan-primera-p11-629056'
+            ];
+            
+            for (const url of testUrls) {
+                try {
+                    log(`Testing URL: ${url}`, 'info');
+                    
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const html = await response.text();
+                        const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+                        const title = titleMatch ? titleMatch[1] : 'No title found';
+                        
+                        if (title.includes('RETROVISOR') || title.includes('BOMBA') || title.includes('MANDO')) {
+                            log(`✅ SEO Title Found: ${title}`, 'success');
+                        } else {
+                            log(`❌ Generic Title: ${title}`, 'error');
+                        }
+                        
+                        // Check if it's development HTML (contains Vite)
+                        if (html.includes('/@vite/client')) {
+                            log(`⚠️ This is DEVELOPMENT HTML (Vite detected)`, 'warning');
+                        } else {
+                            log(`✅ This is SERVER-SIDE SEO HTML`, 'success');
+                        }
+                        
+                    } else {
+                        log(`❌ HTTP Error: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Network Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function testSpecificParts() {
+            clearResults();
+            log('🔧 Testing specific parts API...', 'info');
+            
+            const partIds = [629055, 629056, 629057];
+            
+            for (const partId of partIds) {
+                try {
+                    log(`Testing Part API: /api/parts/${partId}`, 'info');
+                    
+                    const response = await fetch(`/api/parts/${partId}`);
+                    
+                    if (response.ok) {
+                        const part = await response.json();
+                        log(`✅ Part loaded: ${part.descripcionArticulo} - ${part.vehicleMarca} ${part.vehicleModelo}`, 'success');
+                    } else {
+                        log(`❌ Part API Error: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Part API Network Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function runFullTest() {
+            clearResults();
+            log('🚀 Starting complete Safari SEO diagnostic...', 'info');
+            
+            // Test 1: Browser capabilities
+            log('Test 1: Browser Capabilities', 'info');
+            log(`Fetch API: ${typeof fetch !== 'undefined' ? 'Available' : 'Not Available'}`, 
+                typeof fetch !== 'undefined' ? 'success' : 'error');
+            log(`Promises: ${typeof Promise !== 'undefined' ? 'Available' : 'Not Available'}`, 
+                typeof Promise !== 'undefined' ? 'success' : 'error');
+            
+            // Test 2: Current page analysis
+            log('Test 2: Current Page Analysis', 'info');
+            log(`Current URL: ${window.location.href}`, 'info');
+            log(`Document Title: ${document.title}`, 'info');
+            log(`Document Ready State: ${document.readyState}`, 'info');
+            
+            // Test 3: Meta tag analysis
+            log('Test 3: Meta Tag Analysis', 'info');
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                log(`Meta Description: ${metaDesc.content}`, 'success');
+            } else {
+                log(`No meta description found`, 'warning');
+            }
+            
+            // Test 4: SEO-specific URLs
+            log('Test 4: Testing SEO-specific URLs...', 'info');
+            await testServerDirect();
+            
+            log('🏁 Full test completed!', 'success');
+        }
+        
+        // Auto-show browser info when page loads
+        showBrowserInfo();
+        
+        // Auto-run basic test after 2 seconds
+        setTimeout(() => {
+            log('Auto-running diagnostic in Safari...', 'info');
+            runFullTest();
+        }, 2000);
+    </script>
+</body>
+</html>

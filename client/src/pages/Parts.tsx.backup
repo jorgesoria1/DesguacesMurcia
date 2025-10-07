@@ -1,0 +1,1261 @@
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useLocation, useSearch, Link } from "wouter";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { 
+  Search, 
+  Grid, 
+  List, 
+  Table as TableIcon,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  Car,
+  Package,
+  Fuel,
+  Calendar,
+  Eye,
+  ImageIcon,
+  Wrench
+} from "lucide-react";
+import PartCard from "@/components/PartCard";
+import { formatPrice } from "@/lib/utils";
+import { getVehicleInfoFromPart, getVehicleLinkProps } from "@/lib/vehicleUtils";
+
+interface Part {
+  id: number;
+  refLocal: string;
+  idEmpresa: number;
+  codArticulo: string;
+  refPrincipal: string;
+  descripcionArticulo: string;
+  descripcionFamilia?: string;
+  codFamilia: string;
+  precio: string | number;
+  peso: number;
+  vehicleId: number; // Usar vehicleId como en el deploy que funciona
+  imagenes?: string[];
+  activo: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  vehicleMarca?: string;
+  vehicleModelo?: string;
+  vehicleVersion?: string;
+  vehicleAnyo?: string | number;
+  vehicleCombustible?: string;
+  vehicles?: Array<{
+    id: number;
+    marca: string;
+    modelo: string;
+    version?: string;
+    anyo?: string | number;
+    combustible?: string;
+  }>;
+  // Campos adicionales de fallback
+  marcaVehiculo?: string;
+  modeloVehiculo?: string;
+  versionVehiculo?: string;
+  anyoVehiculo?: string | number;
+  combustibleVehiculo?: string;
+}
+
+interface ApiResponse {
+  data: Part[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
+const Parts: React.FC = () => {
+  const [, setLocation] = useLocation();
+  const search = useSearch();
+
+  // Get URL parameters
+  const searchParams = new URLSearchParams(search);
+  const initialBrand = searchParams.get("marca") || "";
+  const initialModel = searchParams.get("modelo") || "";
+  const initialFamily = searchParams.get("familia") || "";
+  const initialYear = searchParams.get("anyo") || "";
+  const initialFuel = searchParams.get("combustible") || "";
+  const initialSearchTerm = searchParams.get("search") || "";
+  const initialSort = searchParams.get("orden") || "newest";
+
+  // Filter states
+  const [brand, setBrand] = useState(initialBrand);
+  const [model, setModel] = useState(initialModel);
+  const [family, setFamily] = useState(initialFamily);
+  const [year, setYear] = useState(initialYear);
+  const [fuel, setFuel] = useState(initialFuel);
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [sort, setSort] = useState(initialSort);
+  const [viewType, setViewType] = useState<'grid' | 'list' | 'table'>('grid');
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [showAssociated, setShowAssociated] = useState(true); // Mostrar piezas con vehículos asociados
+  const [showProcessed, setShowProcessed] = useState(true); // Mostrar piezas de vehículos procesados
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Pagination
+  const [page, setPage] = useState(1);
+  const limit = itemsPerPage;
+  const offset = (page - 1) * limit;
+
+  // Hook para detectar si estamos en versión móvil y forzar vista grid
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobileView = window.innerWidth < 768;
+      setIsMobile(mobileView);
+      // Forzar vista grid en móviles
+      if (mobileView) {
+        setViewType('grid');
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+
+
+  // Main parts query
+  const { data, isLoading, refetch } = useQuery<ApiResponse>({
+    queryKey: ['/api/search-parts', brand, model, family, year, fuel, sort, searchTerm, page, itemsPerPage, showAssociated, showProcessed],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+
+      if (brand && brand !== "all-brands") params.set("marca", brand);
+      if (model && model !== "all-models") params.set("modelo", model);
+      if (family && family !== "all-families") params.set("familia", family);
+      if (year && year !== "all-years") params.set("anyo", year);
+      if (fuel && fuel !== "all-fuels") params.set("combustible", fuel);
+      if (searchTerm && searchTerm.trim()) params.set("search", searchTerm.trim());
+      if (sort) params.set("orden", sort);
+
+      // Manejar filtros de tipo de vehículo
+      if (showAssociated && showProcessed) {
+        params.set("activo", "true");
+        params.set("includeProcessed", "true");
+      } else if (showAssociated && !showProcessed) {
+        params.set("activo", "true");
+        params.set("vehicleType", "associated");
+      } else if (!showAssociated && showProcessed) {
+        params.set("activo", "true");
+        params.set("vehicleType", "processed");
+      } else {
+        // Si ninguno está marcado, mostrar solo piezas activas normales
+        params.set("activo", "true");
+      }
+      params.set("limit", limit.toString());
+      params.set("offset", offset.toString());
+      params.set("getTotalCount", "true");
+
+      const response = await fetch(`/api/search-parts?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    }
+  });
+
+  // Get brands and models
+  const { data: brandsData } = useQuery({
+    queryKey: ['/api/parts/brands-models'],
+    queryFn: async () => {
+      const response = await fetch('/api/parts/brands-models');
+      return response.json();
+    }
+  });
+
+  // Get families
+  const { data: familiesData } = useQuery({
+    queryKey: ['/api/optimized/parts/families', brand, model, year, fuel],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (brand && brand !== "all-brands") params.set("marca", brand);
+      if (model && model !== "all-models") params.set("modelo", model);
+      if (year && year !== "all-years") params.set("anyo", year);
+      if (fuel && fuel !== "all-fuels") params.set("combustible", fuel);
+
+      const response = await fetch(`/api/optimized/parts/families?${params.toString()}`);
+      return response.json();
+    }
+  });
+
+  // Get years for parts filtering
+  const { data: yearsData } = useQuery({
+    queryKey: ['/api/parts-filter/years', brand, model, family, fuel],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (brand && brand !== "all-brands") params.set("marca", brand);
+      if (model && model !== "all-models") params.set("modelo", model);
+      if (family && family !== "all-families") params.set("familia", family);
+      if (fuel && fuel !== "all-fuels") params.set("combustible", fuel);
+
+      const response = await fetch(`/api/parts-filter/years?${params.toString()}`);
+      return response.json();
+    }
+  });
+
+  // Get fuels for parts filtering
+  const { data: fuelsData } = useQuery({
+    queryKey: ['/api/parts-filter/fuels', brand, model, family, year],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (brand && brand !== "all-brands") params.set("marca", brand);
+      if (model && model !== "all-models") params.set("modelo", model);
+      if (family && family !== "all-families") params.set("familia", family);
+      if (year && year !== "all-years") params.set("anyo", year);
+
+      const response = await fetch(`/api/parts-filter/fuels?${params.toString()}`);
+      return response.json();
+    }
+  });
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (brand && brand !== "all-brands") params.set("marca", brand);
+    if (model && model !== "all-models") params.set("modelo", model);
+    if (family && family !== "all-families") params.set("familia", family);
+    if (year && year !== "all-years") params.set("anyo", year);
+    if (fuel && fuel !== "all-fuels") params.set("combustible", fuel);
+    if (searchTerm && searchTerm.trim()) params.set("search", searchTerm.trim());
+    if (sort) params.set("orden", sort);
+
+    setLocation(`/piezas?${params.toString()}`);
+    setPage(1);
+  }, [brand, model, family, year, fuel, searchTerm, sort, setLocation]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [brand, model, family, year, fuel, searchTerm, sort]);
+
+  const availableBrands = brandsData?.brands || [];
+  const availableModels = brand && brandsData?.models?.[brand] ? brandsData.models[brand] : [];
+  const availableFamilies = familiesData || [];
+  const availableYears = yearsData || [];
+  const availableFuels = fuelsData || [];
+
+  const clearFilters = () => {
+    setBrand("");
+    setModel("");
+    setFamily("");
+    setYear("");
+    setFuel("");
+    setSearchTerm("");
+    setSort("newest");
+    setShowProcessed(true); // Mantener activado por defecto
+    setShowAssociated(true); // También mantener vehículos asociados activados
+    setLocation("/piezas");
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
+  const parts = data?.data || [];
+  const totalCount = data?.pagination?.total || 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  // Componente de filtros reutilizable
+  const FiltersContent = () => (
+    <>
+      {/* Encabezado de filtros */}
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="p-2 bg-blue-100 rounded-lg">
+          <Search className="h-5 w-5 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-lg text-gray-900">Filtros</h3>
+          <p className="text-sm text-gray-600">Encuentra tu pieza</p>
+        </div>
+      </div>
+
+      {/* Barra de búsqueda */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2 text-gray-700">Buscar</label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Código, familia, marca..."
+            className="pl-10 pr-4 py-2 border-2 border-gray-200 focus:border-blue-500 focus:ring-0 rounded-lg transition-all duration-200"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filtros en columna */}
+      <div className="space-y-6">
+        {/* Marca */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Car className="h-4 w-4 inline-block mr-2 text-blue-600" /> Marca
+          </label>
+          <Select value={brand === "" ? "__empty__" : brand} onValueChange={(value) => {
+            const realValue = value === "__empty__" ? "" : value;
+            setBrand(realValue);
+          }}>
+            <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+              <SelectValue placeholder="Todas las marcas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__empty__">Todas las marcas</SelectItem>
+              {availableBrands.map((marca: string) => (
+                <SelectItem key={marca} value={marca}>
+                  {marca}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Modelo */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Car className="h-4 w-4 inline-block mr-2 text-green-600" /> Modelo
+          </label>
+          <Select 
+            value={model === "" ? "__empty__" : model} 
+            onValueChange={(value) => {
+              const realValue = value === "__empty__" ? "" : value;
+              setModel(realValue);
+            }}
+            disabled={!brand}
+          >
+            <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+              <SelectValue placeholder="Todos los modelos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__empty__">Todos los modelos</SelectItem>
+              {availableModels.map((modelo: string) => (
+                <SelectItem key={modelo} value={modelo}>
+                  {modelo}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Categoría/Familia */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Package className="h-4 w-4 inline-block mr-2 text-red-600" /> Categoría
+          </label>
+          <Select value={family === "" ? "__empty__" : family} onValueChange={(value) => {
+            const realValue = value === "__empty__" ? "" : value;
+            setFamily(realValue);
+          }}>
+            <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+              <SelectValue placeholder="Todas las categorías" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__empty__">Todas las categorías</SelectItem>
+              {availableFamilies.map((categoria: string) => (
+                <SelectItem key={categoria} value={categoria}>
+                  {categoria}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Año */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Calendar className="h-4 w-4 inline-block mr-2 text-purple-600" /> Año
+          </label>
+          <Select value={year === "" ? "__empty__" : year} onValueChange={(value) => {
+            const realValue = value === "__empty__" ? "" : value;
+            setYear(realValue);
+          }}>
+            <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+              <SelectValue placeholder="Todos los años" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__empty__">Todos los años</SelectItem>
+              {availableYears.map((y: number) => (
+                <SelectItem key={y} value={y.toString()}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Combustible */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            <Fuel className="h-4 w-4 inline-block mr-2 text-orange-600" /> Combustible
+          </label>
+          <Select value={fuel === "" ? "__empty__" : fuel} onValueChange={(value) => {
+            const realValue = value === "__empty__" ? "" : value;
+            setFuel(realValue);
+          }}>
+            <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__empty__">Todos</SelectItem>
+              {availableFuels.map((combustible: string) => (
+                <SelectItem key={combustible} value={combustible}>
+                  {combustible}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Opciones de visualización */}
+      <div className="mt-6 space-y-4">
+        <h4 className="text-sm font-medium text-gray-700 mb-3">Opciones de visualización</h4>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="showAssociated" 
+              checked={showAssociated} 
+              onCheckedChange={(checked) => {
+                setShowAssociated(Boolean(checked));
+                setPage(1); // Reset pagination
+              }}
+            />
+            <label 
+              htmlFor="showAssociated" 
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Vehículos Asociados
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="showProcessed" 
+              checked={showProcessed} 
+              onCheckedChange={(checked) => {
+                setShowProcessed(Boolean(checked));
+                setPage(1); // Reset pagination
+              }}
+            />
+            <label 
+              htmlFor="showProcessed" 
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Vehículos Procesados
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Botón limpiar filtros mejorado */}
+      <div className="mt-6 flex justify-center">
+        <Button 
+          onClick={clearFilters} 
+          variant="outline" 
+          className="px-6 py-2 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition-all duration-200 rounded-lg"
+        >
+          <span className="flex items-center justify-center">
+            ✕ Limpiar filtros
+          </span>
+        </Button>
+      </div>
+
+      {/* Estadísticas - Después del botón limpiar filtros */}
+      <div className="mt-6 space-y-2">
+        {totalCount > 0 && (
+          <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 w-full justify-center">
+            {totalCount.toLocaleString()} piezas disponibles
+          </Badge>
+        )}
+        
+        {(brand || model || family || year || fuel || searchTerm) && (
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 w-full justify-center">
+            {[brand, model, family, year, fuel, searchTerm].filter(Boolean).length} filtros activos
+          </Badge>
+        )}
+      </div>
+
+      {/* Filtros activos */}
+      {(brand || model || family || year || fuel) && (
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <span className="text-sm font-medium text-gray-700 block mb-2">Filtros activos:</span>
+          <div className="flex flex-wrap gap-2">
+            {brand && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Marca: {brand}</Badge>}
+            {model && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Modelo: {model}</Badge>}
+            {family && <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Categoría: {family}</Badge>}
+            {year && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Año: {year}</Badge>}
+            {fuel && <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">Combustible: {fuel}</Badge>}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Botón de filtros para móvil */}
+      {isMobile && (
+        <div className="mb-4">
+          <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="w-full">
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Filtros
+                {(brand || model || family || year || fuel || searchTerm) && (
+                  <Badge variant="secondary" className="ml-2">
+                    {[brand, model, family, year, fuel, searchTerm].filter(Boolean).length}
+                  </Badge>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Filtros de búsqueda</SheetTitle>
+                <SheetDescription>
+                  Filtra las piezas según tus necesidades
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-6">
+                <FiltersContent />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
+
+      {/* Layout con barra lateral */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Barra lateral de filtros - oculta en móvil */}
+        {!isMobile && (
+          <div className="lg:w-64 flex-shrink-0">
+            <Card className="border-0 shadow-lg bg-white sticky top-8">
+              <CardContent className="p-6">
+                <FiltersContent />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+
+
+              {/* Barra de búsqueda */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2 text-gray-700">Buscar</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Código, familia, marca..."
+                    className="pl-10 pr-4 py-2 border-2 border-gray-200 focus:border-blue-500 focus:ring-0 rounded-lg transition-all duration-200"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Filtros en columna */}
+              <div className="space-y-6">
+                {/* Marca */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    <Car className="h-4 w-4 inline-block mr-2 text-blue-600" /> Marca
+                  </label>
+                  <Select value={brand === "" ? "__empty__" : brand} onValueChange={(value) => {
+                    const realValue = value === "__empty__" ? "" : value;
+                    setBrand(realValue);
+                  }}>
+                    <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+                      <SelectValue placeholder="Todas las marcas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__empty__">Todas las marcas</SelectItem>
+                      {availableBrands.map((marca: string) => (
+                        <SelectItem key={marca} value={marca}>
+                          {marca}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Modelo */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    <Car className="h-4 w-4 inline-block mr-2 text-green-600" /> Modelo
+                  </label>
+                  <Select 
+                    value={model === "" ? "__empty__" : model} 
+                    onValueChange={(value) => {
+                      const realValue = value === "__empty__" ? "" : value;
+                      setModel(realValue);
+                    }} 
+                    disabled={!brand}
+                  >
+                    <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+                      <SelectValue placeholder="Todos los modelos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__empty__">Todos los modelos</SelectItem>
+                      {availableModels.map((modelo: string) => (
+                        <SelectItem key={modelo} value={modelo}>
+                          {modelo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Año */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    <Calendar className="h-4 w-4 inline-block mr-2 text-purple-600" /> Año
+                  </label>
+                  <Select value={year === "" ? "__empty__" : year} onValueChange={(value) => {
+                    const realValue = value === "__empty__" ? "" : value;
+                    setYear(realValue);
+                  }}>
+                    <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+                      <SelectValue placeholder="Todos los años" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__empty__">Todos los años</SelectItem>
+                      {availableYears.map((yearOption: number) => (
+                        <SelectItem key={yearOption} value={yearOption.toString()}>
+                          {yearOption}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Combustible */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    <Fuel className="h-4 w-4 inline-block mr-2 text-orange-600" /> Combustible
+                  </label>
+                  <Select value={fuel === "" ? "__empty__" : fuel} onValueChange={(value) => {
+                    const realValue = value === "__empty__" ? "" : value;
+                    setFuel(realValue);
+                  }}>
+                    <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+                      <SelectValue placeholder="Todos los combustibles" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__empty__">Todos los combustibles</SelectItem>
+                      {availableFuels.map((fuelOption: string) => (
+                        <SelectItem key={fuelOption} value={fuelOption}>
+                          {fuelOption}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Categoría */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    <Package className="h-4 w-4 inline-block mr-2 text-red-600" /> Categoría
+                  </label>
+                  <Select value={family === "" ? "__empty__" : family} onValueChange={(value) => {
+                    const realValue = value === "__empty__" ? "" : value;
+                    setFamily(realValue);
+                  }}>
+                    <SelectTrigger className="h-11 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-lg transition-colors">
+                      <SelectValue placeholder="Todas las categorías" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__empty__">Todas las categorías</SelectItem>
+                      {availableFamilies.map((familia: string) => (
+                        <SelectItem key={familia} value={familia}>
+                          {familia}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+              </div>
+
+              {/* Filtros por tipo de vehículo */}
+              <div className="mt-4 flex flex-wrap gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="showAssociated" 
+                    checked={showAssociated} 
+                    onCheckedChange={(checked) => {
+                      setShowAssociated(Boolean(checked));
+                      setPage(1); // Reset pagination
+                    }}
+                  />
+                  <label 
+                    htmlFor="showAssociated" 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Vehículos Asociados
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="showProcessed" 
+                    checked={showProcessed} 
+                    onCheckedChange={(checked) => {
+                      setShowProcessed(Boolean(checked));
+                      setPage(1); // Reset pagination
+                    }}
+                  />
+                  <label 
+                    htmlFor="showProcessed" 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Vehículos Procesados
+                  </label>
+                </div>
+              </div>
+
+              {/* Botón limpiar filtros mejorado */}
+              <div className="mt-6 flex justify-center">
+                <Button 
+                  onClick={clearFilters} 
+                  variant="outline" 
+                  className="px-6 py-2 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition-all duration-200 rounded-lg"
+                >
+                  <span className="flex items-center justify-center">
+                    ✕ Limpiar filtros
+                  </span>
+                </Button>
+              </div>
+
+              {/* Estadísticas - Después del botón limpiar filtros */}
+              <div className="mt-6 space-y-2">
+                {totalCount > 0 && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 w-full justify-center">
+                    {totalCount.toLocaleString()} piezas disponibles
+                  </Badge>
+                )}
+                
+                {(brand || model || family || year || fuel || searchTerm) && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 w-full justify-center">
+                    {[brand, model, family, year, fuel, searchTerm].filter(Boolean).length} filtros activos
+                  </Badge>
+                )}
+              </div>
+
+              {/* Filtros activos */}
+              {(brand || model || family || year || fuel) && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <span className="text-sm font-medium text-gray-700 block mb-2">Filtros activos:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {brand && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Marca: {brand}</Badge>}
+                    {model && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Modelo: {model}</Badge>}
+                    {family && <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Categoría: {family}</Badge>}
+                    {year && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Año: {year}</Badge>}
+                    {fuel && <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">Combustible: {fuel}</Badge>}
+                  </div>
+                </div>
+              )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Área principal de contenido */}
+          <div className="flex-1">
+            {/* Título dentro de la columna */}
+            <div className="mb-6 text-center">
+              <h1 className="text-2xl font-montserrat font-semibold text-gray-800 mb-2">
+                Catálogo de Piezas
+              </h1>
+              <p className="text-sm text-gray-600 mb-4">
+                Encuentra la pieza perfecta para tu vehículo
+              </p>
+            </div>
+
+            {/* Controles de vista y resultados */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <h2 className="text-sm font-montserrat font-medium text-gray-600">
+            {totalCount} piezas disponibles
+          </h2>
+
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Elementos por página */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Mostrar:</span>
+              <Select 
+                value={itemsPerPage.toString()} 
+                onValueChange={(value) => {
+                  setItemsPerPage(parseInt(value));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6">6</SelectItem>
+                  <SelectItem value="12">12</SelectItem>
+                  <SelectItem value="24">24</SelectItem>
+                  <SelectItem value="48">48</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Ordenación */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
+              <Select 
+                value={sort} 
+                onValueChange={(value) => {
+                  setSort(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Más recientes</SelectItem>
+                  <SelectItem value="oldest">Más antiguos</SelectItem>
+                  <SelectItem value="name_asc">Nombre A-Z</SelectItem>
+                  <SelectItem value="name_desc">Nombre Z-A</SelectItem>
+                  <SelectItem value="price_asc">Precio menor</SelectItem>
+                  <SelectItem value="price_desc">Precio mayor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Controles de vista - ocultos en móviles */}
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Vista:</span>
+                <div className="flex border rounded-lg">
+                  <Button
+                    variant={viewType === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewType('grid')}
+                    className="rounded-r-none"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewType === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewType('list')}
+                    className="rounded-none border-x-0"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewType === 'table' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewType('table')}
+                    className="rounded-l-none"
+                  >
+                    <TableIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Contenido principal */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-muted-foreground">Cargando piezas...</p>
+            </div>
+          </div>
+        ) : parts.length === 0 ? (
+          <Card className="p-8 text-center">
+            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No se encontraron piezas
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Intenta ajustar los filtros o realizar una búsqueda diferente
+            </p>
+            <Button onClick={clearFilters} variant="outline">
+              Limpiar filtros
+            </Button>
+          </Card>
+        ) : (
+          <>
+            {/* Renderizar vista seleccionada */}
+            {viewType === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {parts.map((part) => (
+                  <PartCard 
+                    key={part.id} 
+                    part={part} 
+                    className="h-full"
+                  />
+                ))}
+              </div>
+            ) : viewType === 'table' ? (
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Imagen</TableHead>
+                          <TableHead>Descripción</TableHead>
+                          <TableHead>Categoría</TableHead>
+                          <TableHead>Referencia</TableHead>
+                          <TableHead>Vehículo Compatible</TableHead>
+                          <TableHead>Precio</TableHead>
+                          <TableHead>Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parts.map((part) => {
+                          const vehicleInfo = getVehicleInfoFromPart(part);
+                          const { vehicleText, shouldShowLink, linkTo, displayText } = getVehicleLinkProps(vehicleInfo, {
+                            uppercase: true,
+                            showId: true
+                          });
+
+                          return (
+                            <TableRow key={part.id}>
+                              <TableCell>
+                                <div className="w-24 h-16 bg-gray-100 rounded flex items-center justify-center">
+                                  {part.imagenes && part.imagenes.length > 0 ? (
+                                    <img 
+                                      src={part.imagenes[0]} 
+                                      alt={part.descripcionArticulo}
+                                      className="w-full h-full object-cover rounded"
+                                    />
+                                  ) : (
+                                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <h3 className="font-medium text-sm">{part.descripcionArticulo}</h3>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className="text-sm text-muted-foreground">
+                                  {part.descripcionFamilia}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-xs">
+                                  {part.refPrincipal || 'N/A'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="max-w-[150px]">
+                                  {vehicleText ? (
+                                    shouldShowLink && linkTo ? (
+                                      <div className="space-y-1">
+                                        <Link to={linkTo}>
+                                          <span className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer text-xs block transition-colors">
+                                            {displayText}
+                                          </span>
+                                        </Link>
+                                      </div>
+                                    ) : (
+                                      <span className="font-medium text-xs">{displayText}</span>
+                                    )
+                                  ) : (
+                                    <span className="text-sm text-muted-foreground">-</span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="text-xs">
+                                  {formatPrice(parseFloat(part.precio?.toString() || '0'))}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Link to={`/piezas/${part.id}`}>
+                                  <Button variant="outline" size="sm">
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    Ver
+                                  </Button>
+                                </Link>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {parts.map((part) => {
+                  const vehicleInfo = getVehicleInfoFromPart(part);
+                  const { vehicleText, shouldShowLink, linkTo, displayText } = getVehicleLinkProps(vehicleInfo, {
+                    includeYear: true
+                  });
+
+                  return (
+                    <Card key={part.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-48 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                            {part.imagenes && part.imagenes.length > 0 ? (
+                              <img 
+                                src={part.imagenes[0]} 
+                                alt={part.descripcionArticulo}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            ) : (
+                              <ImageIcon className="h-16 w-16 text-gray-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">
+                              {part.descripcionArticulo}
+                            </h3>
+                            <p className="text-muted-foreground">
+                              {part.descripcionFamilia}
+                            </p>
+
+                            {/* Información de marca y modelo siempre visible */}
+                            <div className="col-span-1 sm:col-span-2 mt-2">
+                              <div className="flex flex-wrap gap-2 mb-2">
+                                <div className="bg-blue-50 px-2 py-1 rounded text-xs border">
+                                  <span className="font-medium text-blue-800">Marca:</span> 
+                                  <span className="text-blue-700 ml-1">
+                                    {part.vehicleMarca || part.marcaVehiculo || 'No especificada'}
+                                  </span>
+                                </div>
+                                <div className="bg-green-50 px-2 py-1 rounded text-xs border">
+                                  <span className="font-medium text-green-800">Modelo:</span> 
+                                  <span className="text-green-700 ml-1">
+                                    {part.vehicleModelo || part.modeloVehiculo || 'No especificado'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Información del vehículo compatible */}
+                            {part.vehicles && part.vehicles.length > 0 ? (
+                              <div className="col-span-1 sm:col-span-2 mt-1 bg-gray-50 rounded p-2 border">
+                                <span className="font-medium text-sm">🚗 Vehículo compatible:</span>
+                                <Link to={`/vehiculos/${part.vehicles[0].id}`} className="text-primary hover:underline block mt-1">
+                                  {`${part.vehicles[0].marca} ${part.vehicles[0].modelo}${part.vehicles[0].version ? ` ${part.vehicles[0].version}` : ''}`}
+                                  {part.vehicles[0].anyo ? ` (${part.vehicles[0].anyo})` : ''}
+                                </Link>
+                                <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
+                                  <div><span className="font-medium">Año:</span> {part.vehicles[0].anyo || 'N/A'}</div>
+                                  <div><span className="font-medium">Combustible:</span> {part.vehicles[0].combustible || 'N/A'}</div>
+                                </div>
+                              </div>
+                            ) : (part.marcaVehiculo || part.modeloVehiculo || part.vehicleMarca || part.vehicleModelo) ? (
+                              <div className="col-span-1 sm:col-span-2 mt-1 bg-gray-50 rounded p-2 border">
+                                <span className="font-medium text-sm">🚗 Compatible con:</span>
+                                <div className="mt-1">
+                                  <span className="text-gray-700">
+                                    {`${part.vehicleMarca || part.marcaVehiculo || 'Marca no especificada'} ${part.vehicleModelo || part.modeloVehiculo || 'Modelo no especificado'}${(part.vehicleVersion || part.versionVehiculo) ? ` ${part.vehicleVersion || part.versionVehiculo}` : ''}`}
+                                    {(part.vehicleAnyo || part.anyoVehiculo) ? ` (${part.vehicleAnyo || part.anyoVehiculo})` : ''}
+                                  </span>
+                                </div>
+                                {(part.anyoVehiculo || part.combustibleVehiculo || part.vehicleAnyo) && (
+                                  <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
+                                    {(part.vehicleAnyo || part.anyoVehiculo) && (
+                                      <div><span className="font-medium">Año:</span> {part.vehicleAnyo || part.anyoVehiculo}</div>
+                                    )}
+                                    {part.combustibleVehiculo && (
+                                      <div><span className="font-medium">Combustible:</span> {part.combustibleVehiculo}</div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="col-span-1 sm:col-span-2 mt-1 bg-yellow-50 rounded p-2 border border-yellow-200">
+                                <span className="text-sm text-yellow-700">⚠️ Información de vehículo compatible no disponible</span>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 mt-2">
+                              <Badge variant="outline">{part.refPrincipal || 'N/A'}</Badge>
+                              <Badge variant="secondary">{formatPrice(parseFloat(part.precio?.toString() || '0'))}</Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Link to={`/piezas/${part.id}`}>
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver detalles
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    {/* Página anterior */}
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => page > 1 && handlePageChange(page - 1)}
+                        className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        title="Página anterior"
+                      />
+                    </PaginationItem>
+
+                    {/* Sistema de paginación avanzado */}
+                    {(() => {
+                      const showMaxPages = 7;
+                      let pages = [];
+                      let showFirstDots = false;
+                      let showLastDots = false;
+                      
+                      if (totalPages <= showMaxPages) {
+                        pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+                      } else {
+                        if (page <= 4) {
+                          pages = [1, 2, 3, 4, 5];
+                          showLastDots = true;
+                        } else if (page >= totalPages - 3) {
+                          pages = Array.from({ length: 5 }, (_, i) => totalPages - 4 + i);
+                          showFirstDots = true;
+                        } else {
+                          pages = [page - 1, page, page + 1];
+                          showFirstDots = true;
+                          showLastDots = true;
+                        }
+                      }
+
+                      return (
+                        <>
+                          {/* Primera página con puntos */}
+                          {showFirstDots && (
+                            <>
+                              <PaginationItem>
+                                <PaginationLink
+                                  onClick={() => handlePageChange(1)}
+                                  className="cursor-pointer"
+                                >
+                                  1
+                                </PaginationLink>
+                              </PaginationItem>
+                              <span className="px-2 flex items-center text-gray-500">...</span>
+                            </>
+                          )}
+                          
+                          {/* Páginas numeradas */}
+                          {pages.map(pageNum => (
+                            <PaginationItem key={pageNum}>
+                              <PaginationLink
+                                onClick={() => handlePageChange(pageNum)}
+                                isActive={page === pageNum}
+                                className="cursor-pointer"
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
+                          
+                          {/* Última página con puntos */}
+                          {showLastDots && (
+                            <>
+                              <span className="px-2 flex items-center text-gray-500">...</span>
+                              <PaginationItem>
+                                <PaginationLink
+                                  onClick={() => handlePageChange(totalPages)}
+                                  className="cursor-pointer"
+                                >
+                                  {totalPages}
+                                </PaginationLink>
+                              </PaginationItem>
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
+
+                    {/* Página siguiente */}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => page < totalPages && handlePageChange(page + 1)}
+                        className={page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        title="Página siguiente"
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
+        )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Parts;

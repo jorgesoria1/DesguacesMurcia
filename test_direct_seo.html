@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test SEO Direct</title>
+</head>
+<body>
+    <h1>Test SEO - Navegación Directa</h1>
+    <button onclick="testSEO()">Probar SEO</button>
+    <div id="results"></div>
+    
+    <script>
+        // Simular estar en página de pieza
+        Object.defineProperty(window, 'location', {
+            writable: true,
+            value: {
+                pathname: '/piezas/bomba-direccion-peugeot-306-35-pt-s1011993-629055',
+                href: 'http://localhost:5000/piezas/bomba-direccion-peugeot-306-35-pt-s1011993-629055'
+            }
+        });
+        
+        async function testSEO() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Iniciando test...</p>';
+            
+            console.log('🚀 TEST SEO: Iniciando...');
+            const currentPath = window.location.pathname;
+            console.log('📍 Path:', currentPath);
+            
+            if (currentPath.startsWith('/piezas/')) {
+                console.log('🎯 Detectada página de pieza');
+                const match = currentPath.match(/-(\d+)$/);
+                const partId = match ? parseInt(match[1]) : 0;
+                console.log('🔢 ID:', partId);
+                
+                if (partId > 0) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/api/parts/${partId}`);
+                        console.log('📡 Response:', response.status);
+                        
+                        if (response.ok) {
+                            const part = await response.json();
+                            console.log('📦 Part data:', part);
+                            
+                            const vehicleInfo = part.vehicleMarca && part.vehicleModelo 
+                                ? ` ${part.vehicleMarca} ${part.vehicleModelo}` 
+                                : '';
+                            const oemRef = part.refPrincipal && part.refPrincipal !== 'N/A' 
+                                ? ` (OEM: ${part.refPrincipal})` 
+                                : '';
+                            const internalRef = part.refLocal ? ` (Ref: ${part.refLocal})` : '';
+                            
+                            const newTitle = `${part.descripcionArticulo}${vehicleInfo}${oemRef}${internalRef}`;
+                            console.log('🏷️ New title:', newTitle);
+                            
+                            document.title = newTitle;
+                            results.innerHTML = `<p>✅ Título actualizado: ${newTitle}</p>`;
+                        } else {
+                            results.innerHTML = `<p>❌ Error API: ${response.status}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        results.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                    }
+                }
+            }
+        }
+        
+        // Ejecutar automáticamente
+        window.onload = () => {
+            setTimeout(testSEO, 1000);
+        };
+    </script>
+</body>
+</html>

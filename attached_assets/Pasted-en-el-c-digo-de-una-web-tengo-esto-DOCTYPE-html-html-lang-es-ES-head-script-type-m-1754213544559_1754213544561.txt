@@ -1,0 +1,163 @@
+en el código de una web tengo esto:
+<!DOCTYPE html>
+<html lang="es-ES">
+  <head>
+    <script type="module">
+import { createHotContext } from "/@vite/client";
+const hot = createHotContext("/__dummy__runtime-error-plugin");
+
+function sendError(error) {
+  if (!(error instanceof Error)) {
+    error = new Error("(unknown runtime error)");
+  }
+  const serialized = {
+    message: error.message,
+    stack: error.stack,
+  };
+  hot.send("runtime-error-plugin:error", serialized);
+}
+
+window.addEventListener("error", (evt) => {
+  sendError(evt.error);
+});
+
+window.addEventListener("unhandledrejection", (evt) => {
+  sendError(evt.reason);
+});
+</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Desguace Murcia - Recambios de Automóvil</title>
+    <meta name="description" content="Desguace Murcia - Venta de recambios de automóvil usados. Encuentra piezas de calidad para tu vehículo al mejor precio." />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx?v=VqicLEbeuUIGJ9FHcDQP_"></script>
+  </body>
+</html>
+y si le das al main, se ve esto:
+import __vite__cjsImport0_react_jsxRuntime from "/@fs/home/runner/workspace/node_modules/.vite/deps/react_jsx-runtime.js?v=0a0cf400";
+const jsx = __vite__cjsImport0_react_jsxRuntime["jsx"];
+import __vite__cjsImport1_reactDom_client from "/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=0a0cf400";
+const createRoot = __vite__cjsImport1_reactDom_client["createRoot"];
+import App from "/src/App.tsx?v=VqicLEbeuUIGJ9FHcDQP_";
+import "/src/index.css?v=VqicLEbeuUIGJ9FHcDQP_";
+import { LogOut } from "/@fs/home/runner/workspace/node_modules/.vite/deps/lucide-react.js?v=0a0cf400";
+if (typeof window !== "undefined") {
+    window.LogOut = LogOut;
+    globalThis.LogOut = LogOut;
+}
+window.addEventListener("error", (event) => {
+    const message = event.message || "";
+    const filename = event.filename || "";
+    const source = event.source || "";
+    const suppressPatterns = [
+    "[plugin:runtime-error-plugin]",
+    "plugin:runtime-error-plugin",
+    "runtime-error-plugin",
+    "removeChild",
+    "Can't find variable: LogOut",
+    "LogOut is not defined",
+    "LogOut is not a function",
+    "ReferenceError: LogOut is not defined",
+    "__dummy__runtime-error-plugin"
+    ];
+    const shouldSuppress = suppressPatterns.some(
+    (pattern) => message.includes(pattern) || filename.includes(pattern) || source.toString().includes(pattern)
+    );
+    if (shouldSuppress) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        return false;
+    }
+});
+window.addEventListener("unhandledrejection", (event) => {
+    const reason = event.reason ? event.reason.toString() : "";
+    const suppressPatterns = [
+    "removeChild",
+    "Can't find variable: LogOut",
+    "LogOut is not defined",
+    "LogOut is not a function",
+    "runtime-error-plugin",
+    "ReferenceError: LogOut is not defined",
+    "__dummy__runtime-error-plugin"
+    ];
+    const shouldSuppress = suppressPatterns.some((pattern) => reason.includes(pattern));
+    if (shouldSuppress) {
+        event.preventDefault();
+        return false;
+    }
+});
+if (typeof window !== "undefined") {
+    const suppressPatterns = [
+    "[plugin:runtime-error-plugin]",
+    "plugin:runtime-error-plugin",
+    "runtime-error-plugin",
+    "Can't find variable: LogOut",
+    "LogOut is not defined",
+    "LogOut is not a function",
+    "ReferenceError: LogOut is not defined",
+    "removeChild",
+    "runtime-error-modal",
+    "__dummy__runtime-error-plugin"
+    ];
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+        const message = args.join(" ");
+        const shouldSuppress = suppressPatterns.some((pattern) => message.includes(pattern));
+        if (!shouldSuppress) {
+            originalConsoleError.apply(console, args);
+        }
+    };
+    const originalConsoleWarn = console.warn;
+    console.warn = function(...args) {
+        const message = args.join(" ");
+        const shouldSuppress = suppressPatterns.some((pattern) => message.includes(pattern));
+        if (!shouldSuppress) {
+            originalConsoleWarn.apply(console, args);
+        }
+    };
+    const originalConsoleLog = console.log;
+    console.log = function(...args) {
+        const message = args.join(" ");
+        if (message.includes("[plugin:runtime-error-plugin]") && message.includes("Can't find variable: LogOut")) {
+            return;
+        }
+        originalConsoleLog.apply(console, args);
+    };
+}
+window.onerror = function(message, source, lineno, colno, error) {
+    const errorMsg = message ? message.toString() : "";
+    const suppressPatterns = [
+    "[plugin:runtime-error-plugin]",
+    "plugin:runtime-error-plugin",
+    "Can't find variable: LogOut",
+    "LogOut is not defined",
+    "ReferenceError: LogOut is not defined"
+    ];
+    const shouldSuppress = suppressPatterns.some((pattern) => errorMsg.includes(pattern));
+    if (shouldSuppress) {
+        return true;
+    }
+    return false;
+};
+try {
+    createRoot(document.getElementById("root")).render(/* @__PURE__ */
+    jsx(App, {}));
+} catch (error) {
+    if (error && error.toString().includes("LogOut")) {
+        console.log("Suprimido error de LogOut del plugin runtime-error");
+    } else {
+        throw error;
+    }
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm1haW4udHN4P3Y9VnFpY0xFYmV1VUlHSjlGSGNEUVBfIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IGNyZWF0ZVJvb3QgfSBmcm9tIFwicmVhY3QtZG9tL2NsaWVudFwiO1xuaW1wb3J0IEFwcCBmcm9tIFwiLi9BcHBcIjtcbmltcG9ydCBcIi4vaW5kZXguY3NzXCI7XG5cbi8vIFNPTFVDSU9OIERFRklOSVRJVkE6IFByZS1jYXJnYXIgTG9nT3V0IHBhcmEgZXZpdGFyIGVycm9yIGRlbCBwbHVnaW4gcnVudGltZS1lcnJvci1wbHVnaW5cbmltcG9ydCB7IExvZ091dCB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcbi8vIERlZmluaXIgTG9nT3V0IGdsb2JhbG1lbnRlIHBhcmEgcXVlIGVsIHBsdWdpbiBsbyBlbmN1ZW50cmVcbmlmICh0eXBlb2Ygd2luZG93ICE9PSAndW5kZWZpbmVkJykge1xuICAod2luZG93IGFzIGFueSkuTG9nT3V0ID0gTG9nT3V0O1xuICAoZ2xvYmFsVGhpcyBhcyBhbnkpLkxvZ091dCA9IExvZ091dDtcbn1cblxuLy8gTWFuZWphZG9yIGdsb2JhbCBkZSBlcnJvcmVzIG3DoXMgYWdyZXNpdm8gcGFyYSBSZXBsaXQgcGx1Z2luc1xud2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ2Vycm9yJywgKGV2ZW50KSA9PiB7XG4gIGNvbnN0IG1lc3NhZ2UgPSBldmVudC5tZXNzYWdlIHx8ICcnO1xuICBjb25zdCBmaWxlbmFtZSA9IGV2ZW50LmZpbGVuYW1lIHx8ICcnO1xuICBjb25zdCBzb3VyY2UgPSAoZXZlbnQgYXMgYW55KS5zb3VyY2UgfHwgJyc7XG4gIFxuICAvLyBMaXN0YSBjb21wbGV0YSBkZSBwYXRyb25lcyBhIHN1cHJpbWlyXG4gIGNvbnN0IHN1cHByZXNzUGF0dGVybnMgPSBbXG4gICAgJ1twbHVnaW46cnVudGltZS1lcnJvci1wbHVnaW5dJyxcbiAgICAncGx1Z2luOnJ1bnRpbWUtZXJyb3ItcGx1Z2luJyxcbiAgICAncnVudGltZS1lcnJvci1wbHVnaW4nLFxuICAgICdyZW1vdmVDaGlsZCcsXG4gICAgXCJDYW4ndCBmaW5kIHZhcmlhYmxlOiBMb2dPdXRcIixcbiAgICBcIkxvZ091dCBpcyBub3QgZGVmaW5lZFwiLFxuICAgIFwiTG9nT3V0IGlzIG5vdCBhIGZ1bmN0aW9uXCIsXG4gICAgXCJSZWZlcmVuY2VFcnJvcjogTG9nT3V0IGlzIG5vdCBkZWZpbmVkXCIsXG4gICAgXCJfX2R1bW15X19ydW50aW1lLWVycm9yLXBsdWdpblwiXG4gIF07XG4gIFxuICAvLyBWZXJpZmljYXIgc2kgZWwgZXJyb3IgY29pbmNpZGUgY29uIGFsZ8O6biBwYXRyw7NuIGEgc3VwcmltaXJcbiAgY29uc3Qgc2hvdWxkU3VwcHJlc3MgPSBzdXBwcmVzc1BhdHRlcm5zLnNvbWUocGF0dGVybiA9PiBcbiAgICBtZXNzYWdlLmluY2x1ZGVzKHBhdHRlcm4pIHx8IFxuICAgIGZpbGVuYW1lLmluY2x1ZGVzKHBhdHRlcm4pIHx8XG4gICAgc291cmNlLnRvU3RyaW5nKCkuaW5jbHVkZXMocGF0dGVybilcbiAgKTtcbiAgXG4gIGlmIChzaG91bGRTdXBwcmVzcykge1xuICAgIGV2ZW50LnByZXZlbnREZWZhdWx0KCk7XG4gICAgZXZlbnQuc3RvcFByb3BhZ2F0aW9uKCk7XG4gICAgZXZlbnQuc3RvcEltbWVkaWF0ZVByb3BhZ2F0aW9uKCk7XG4gICAgcmV0dXJuIGZhbHNlO1xuICB9XG59KTtcblxuLy8gTWFuZWphZG9yIHBhcmEgZXJyb3JlcyBubyBjYXB0dXJhZG9zIGRlIHByb21lc2FzXG53aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcigndW5oYW5kbGVkcmVqZWN0aW9uJywgKGV2ZW50KSA9PiB7XG4gIGNvbnN0IHJlYXNvbiA9IGV2ZW50LnJlYXNvbiA/IGV2ZW50LnJlYXNvbi50b1N0cmluZygpIDogJyc7XG4gIFxuICBjb25zdCBzdXBwcmVzc1BhdHRlcm5zID0gW1xuICAgICdyZW1vdmVDaGlsZCcsXG4gICAgXCJDYW4ndCBmaW5kIHZhcmlhYmxlOiBMb2dPdXRcIixcbiAgICBcIkxvZ091dCBpcyBub3QgZGVmaW5lZFwiLFxuICAgIFwiTG9nT3V0IGlzIG5vdCBhIGZ1bmN0aW9uXCIsXG4gICAgXCJydW50aW1lLWVycm9yLXBsdWdpblwiLFxuICAgIFwiUmVmZXJlbmNlRXJyb3I6IExvZ091dCBpcyBub3QgZGVmaW5lZFwiLFxuICAgIFwiX19kdW1teV9fcnVudGltZS1lcnJvci1wbHVnaW5cIlxuICBdO1xuICBcbiAgY29uc3Qgc2hvdWxkU3VwcHJlc3MgPSBzdXBwcmVzc1BhdHRlcm5zLnNvbWUocGF0dGVybiA9PiByZWFzb24uaW5jbHVkZXMocGF0dGVybikpO1xuICBcbiAgaWYgKHNob3VsZFN1cHByZXNzKSB7XG4gICAgZXZlbnQucHJldmVudERlZmF1bHQoKTtcbiAgICByZXR1cm4gZmFsc2U7XG4gIH1cbn0pO1xuXG4vLyBTaXN0ZW1hIGNvbXBsZXRvIGRlIHN1cHJlc2nDs24gZGUgZXJyb3JlcyBkZWwgcGx1Z2luXG5pZiAodHlwZW9mIHdpbmRvdyAhPT0gJ3VuZGVmaW5lZCcpIHtcbiAgY29uc3Qgc3VwcHJlc3NQYXR0ZXJucyA9IFtcbiAgICAnW3BsdWdpbjpydW50aW1lLWVycm9yLXBsdWdpbl0nLFxuICAgICdwbHVnaW46cnVudGltZS1lcnJvci1wbHVnaW4nLFxuICAgICdydW50aW1lLWVycm9yLXBsdWdpbicsXG4gICAgXCJDYW4ndCBmaW5kIHZhcmlhYmxlOiBMb2dPdXRcIixcbiAgICBcIkxvZ091dCBpcyBub3QgZGVmaW5lZFwiLCBcbiAgICBcIkxvZ091dCBpcyBub3QgYSBmdW5jdGlvblwiLFxuICAgIFwiUmVmZXJlbmNlRXJyb3I6IExvZ091dCBpcyBub3QgZGVmaW5lZFwiLFxuICAgICdyZW1vdmVDaGlsZCcsXG4gICAgJ3J1bnRpbWUtZXJyb3ItbW9kYWwnLFxuICAgIFwiX19kdW1teV9fcnVudGltZS1lcnJvci1wbHVnaW5cIlxuICBdO1xuICBcbiAgLy8gSW50ZXJjZXB0YXIgY29uc29sZS5lcnJvclxuICBjb25zdCBvcmlnaW5hbENvbnNvbGVFcnJvciA9IGNvbnNvbGUuZXJyb3I7XG4gIGNvbnNvbGUuZXJyb3IgPSBmdW5jdGlvbiguLi5hcmdzKSB7XG4gICAgY29uc3QgbWVzc2FnZSA9IGFyZ3Muam9pbignICcpO1xuICAgIGNvbnN0IHNob3VsZFN1cHByZXNzID0gc3VwcHJlc3NQYXR0ZXJucy5zb21lKHBhdHRlcm4gPT4gbWVzc2FnZS5pbmNsdWRlcyhwYXR0ZXJuKSk7XG4gICAgaWYgKCFzaG91bGRTdXBwcmVzcykge1xuICAgICAgb3JpZ2luYWxDb25zb2xlRXJyb3IuYXBwbHkoY29uc29sZSwgYXJncyk7XG4gICAgfVxuICB9O1xuICBcbiAgLy8gSW50ZXJjZXB0YXIgY29uc29sZS53YXJuXG4gIGNvbnN0IG9yaWdpbmFsQ29uc29sZVdhcm4gPSBjb25zb2xlLndhcm47XG4gIGNvbnNvbGUud2FybiA9IGZ1bmN0aW9uKC4uLmFyZ3MpIHtcbiAgICBjb25zdCBtZXNzYWdlID0gYXJncy5qb2luKCcgJyk7XG4gICAgY29uc3Qgc2hvdWxkU3VwcHJlc3MgPSBzdXBwcmVzc1BhdHRlcm5zLnNvbWUocGF0dGVybiA9PiBtZXNzYWdlLmluY2x1ZGVzKHBhdHRlcm4pKTtcbiAgICBpZiAoIXNob3VsZFN1cHByZXNzKSB7XG4gICAgICBvcmlnaW5hbENvbnNvbGVXYXJuLmFwcGx5KGNvbnNvbGUsIGFyZ3MpO1xuICAgIH1cbiAgfTtcbiAgXG4gIC8vIEludGVyY2VwdGFyIGNvbnNvbGUubG9nIHBhcmEgY2Fzb3MgZXh0cmVtb3NcbiAgY29uc3Qgb3JpZ2luYWxDb25zb2xlTG9nID0gY29uc29sZS5sb2c7XG4gIGNvbnNvbGUubG9nID0gZnVuY3Rpb24oLi4uYXJncykge1xuICAgIGNvbnN0IG1lc3NhZ2UgPSBhcmdzLmpvaW4oJyAnKTtcbiAgICBpZiAobWVzc2FnZS5pbmNsdWRlcygnW3BsdWdpbjpydW50aW1lLWVycm9yLXBsdWdpbl0nKSAmJiBcbiAgICAgICAgbWVzc2FnZS5pbmNsdWRlcyhcIkNhbid0IGZpbmQgdmFyaWFibGU6IExvZ091dFwiKSkge1xuICAgICAgcmV0dXJuOyAvLyBTdXByaW1pciBsb2dzIGRlbCBwbHVnaW4gY29uIExvZ091dFxuICAgIH1cbiAgICBvcmlnaW5hbENvbnNvbGVMb2cuYXBwbHkoY29uc29sZSwgYXJncyk7XG4gIH07XG59XG5cbi8vIE1hbmVqYWRvciBnbG9iYWwgZmluYWwgYW50ZXMgZGVsIHJlbmRlclxud2luZG93Lm9uZXJyb3IgPSBmdW5jdGlvbihtZXNzYWdlLCBzb3VyY2UsIGxpbmVubywgY29sbm8sIGVycm9yKSB7XG4gIGNvbnN0IGVycm9yTXNnID0gbWVzc2FnZSA/IG1lc3NhZ2UudG9TdHJpbmcoKSA6ICcnO1xuICBjb25zdCBzdXBwcmVzc1BhdHRlcm5zID0gW1xuICAgICdbcGx1Z2luOnJ1bnRpbWUtZXJyb3ItcGx1Z2luXScsXG4gICAgJ3BsdWdpbjpydW50aW1lLWVycm9yLXBsdWdpbicsXG4gICAgXCJDYW4ndCBmaW5kIHZhcmlhYmxlOiBMb2dPdXRcIixcbiAgICBcIkxvZ091dCBpcyBub3QgZGVmaW5lZFwiLFxuICAgIFwiUmVmZXJlbmNlRXJyb3I6IExvZ091dCBpcyBub3QgZGVmaW5lZFwiXG4gIF07XG4gIFxuICBjb25zdCBzaG91bGRTdXBwcmVzcyA9IHN1cHByZXNzUGF0dGVybnMuc29tZShwYXR0ZXJuID0+IGVycm9yTXNnLmluY2x1ZGVzKHBhdHRlcm4pKTtcbiAgaWYgKHNob3VsZFN1cHByZXNzKSB7XG4gICAgcmV0dXJuIHRydWU7IC8vIFN1cHJpbWlyIGVsIGVycm9yXG4gIH1cbiAgcmV0dXJuIGZhbHNlOyAvLyBQZXJtaXRpciBvdHJvcyBlcnJvcmVzXG59O1xuXG4vLyBTdXByaW1pciBlcnJvcmVzIGFkaWNpb25hbGVzIHF1ZSBwdWVkYW4gc3VyZ2lyIGR1cmFudGUgZWwgcmVuZGVyXG50cnkge1xuICAvLyBSZW5kZXIgdGhlIGFwcGxpY2F0aW9uXG4gIGNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJyb290XCIpISkucmVuZGVyKDxBcHAgLz4pO1xufSBjYXRjaCAoZXJyb3IpIHtcbiAgLy8gU3VwcmltaXIgZXJyb3JlcyByZWxhY2lvbmFkb3MgY29uIExvZ091dCBvIHJ1bnRpbWUtZXJyb3ItcGx1Z2luXG4gIGlmIChlcnJvciAmJiBlcnJvci50b1N0cmluZygpLmluY2x1ZGVzKCdMb2dPdXQnKSkge1xuICAgIGNvbnNvbGUubG9nKCdTdXByaW1pZG8gZXJyb3IgZGUgTG9nT3V0IGRlbCBwbHVnaW4gcnVudGltZS1lcnJvcicpO1xuICB9IGVsc2Uge1xuICAgIHRocm93IGVycm9yOyAvLyBSZS1sYW56YXIgZXJyb3JlcyByZWFsZXNcbiAgfVxufVxuIl0sIm1hcHBpbmdzIjoiQUF3SXNEO0FBeEl0RCxTQUFTLGtCQUFrQjtBQUMzQixPQUFPLFNBQVM7QUFDaEIsT0FBTztBQUdQLFNBQVMsY0FBYztBQUV2QixJQUFJLE9BQU8sV0FBVyxhQUFhO0FBQ2pDLEVBQUMsT0FBZSxTQUFTO0FBQ3pCLEVBQUMsV0FBbUIsU0FBUztBQUMvQjtBQUdBLE9BQU8saUJBQWlCLFNBQVMsQ0FBQyxVQUFVO0FBQzFDLFFBQU0sVUFBVSxNQUFNLFdBQVc7QUFDakMsUUFBTSxXQUFXLE1BQU0sWUFBWTtBQUNuQyxRQUFNLFNBQVUsTUFBYyxVQUFVO0FBR3hDLFFBQU0sbUJBQW1CO0FBQUEsSUFDdkI7QUFBQSxJQUNBO0FBQUEsSUFDQTtBQUFBLElBQ0E7QUFBQSxJQUNBO0FBQUEsSUFDQTtBQUFBLElBQ0E7QUFBQSxJQUNBO0FBQUEsSUFDQTtBQUFBLEVBQ0Y7QUFHQSxRQUFNLGlCQUFpQixpQkFBaUI7QUFBQSxJQUFLLGFBQzNDLFFBQVEsU0FBUyxPQUFPLEtBQ3hCLFNBQVMsU0FBUyxPQUFPLEtBQ3pCLE9BQU8sU0FBUyxFQUFFLFNBQVMsT0FBTztBQUFBLEVBQ3BDO0FBRUEsTUFBSSxnQkFBZ0I7QUFDbEIsVUFBTSxlQUFlO0FBQ3JCLFVBQU0sZ0JBQWdCO0FBQ3RCLFVBQU0seUJBQXlCO0FBQy9CLFdBQU87QUFBQSxFQUNU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
+
+Es correcto o hay algún problema de seguridad?

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="95" fill="#FFFFFF" stroke="#D1D1D1" stroke-width="1"/>
+  <circle cx="100" cy="100" r="80" fill="#001e50"/>
+  <circle cx="100" cy="100" r="78" fill="#001e50" stroke="#FFFFFF" stroke-width="1"/>
+  <!-- Logo VW -->
+  <path d="M100,30 L170,100 L100,170 L30,100 Z" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+  <path d="M100,45 L155,100 L100,155 L45,100 Z" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <!-- V -->
+  <path d="M85,80 L100,115 L115,80" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <!-- W -->
+  <path d="M77,120 L85,100 L93,115 L100,100 L107,115 L115,100 L123,120" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+</svg>

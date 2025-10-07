@@ -1,0 +1,45 @@
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Log] 🔄 SEO Hook: home at / (useSEO.ts, line 61)
+[Log] 🚀🚀🚀 NUEVO HOOK SEO SIMPLIFICADO EJECUTÁNDOSE - home: Desguace Murcia - Repuestos Originales Vehículos | Garantía 3 Meses (useSEO.ts, line 97)
+[Log] ✅✅✅ SEO ACTUALIZADO EXITOSAMENTE: Desguace Murcia - Repuestos Originales Vehículos | Garantía 3 Meses (useSEO.ts, line 99)
+[Error] Failed to load resource: the server responded with a status of 401 (Unauthorized) (me, line 0)
+[Log] ✅ Chatbot Voiceflow cargado correctamente (App.tsx, line 535)
+[Info] voiceflow webchat v2.98.0 (bundle.mjs, line 520)
+[Error] Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `R7`. See https://reactjs.org/link/warning-keys for more information.
+Bw@https://cdn.voiceflow.com/widget-next/bundle.mjs:234:2402
+R7@https://cdn.voiceflow.com/widget-next/bundle.mjs:462:2640
+div
+div
+Uw@https://cdn.voiceflow.com/widget-next/bundle.mjs:234:2115
+pq@https://cdn.voiceflow.com/widget-next/bundle.mjs:519:7572
+_D@https://cdn.voiceflow.com/widget-next/bundle.mjs:344:8001
+	Q (bundle.mjs:55:1025)
+	j (bundle.mjs:55:787)
+	Hi (bundle.mjs:65:319)
+	si (bundle.mjs:65:577)
+	fu (bundle.mjs:65:2573)
+	R7 (bundle.mjs:462:3779)
+	C0 (bundle.mjs:185:384)
+	Y2 (bundle.mjs:189:5600)
+	EC (bundle.mjs:208:2148)
+	DR (bundle.mjs:204:22239)
+	WK (bundle.mjs:204:21845)
+	mb (bundle.mjs:204:21598)
+	xR (bundle.mjs:204:17617)
+	lt (bundle.mjs:81:2213)
+	Be (bundle.mjs:81:1957)
+	Fr (bundle.mjs:81:3826)
+[Log] 🔄 SEO Hook: piezas at /piezas (useSEO.ts, line 61)
+[Log] 🚀🚀🚀 NUEVO HOOK SEO SIMPLIFICADO EJECUTÁNDOSE - piezas: Catálogo de Piezas y Repuestos de Vehículos | Desguace Murcia (useSEO.ts, line 97)
+[Log] ✅✅✅ SEO ACTUALIZADO EXITOSAMENTE: Catálogo de Piezas y Repuestos de Vehículos | Desguace Murcia (useSEO.ts, line 99)
+[Log] 📱 Mobile detection (Parts): – Object (Parts.tsx, line 143)
+Object
+[Log] 🔄 PARTS: Saltando actualización durante carga inicial (Parts.tsx, line 170)
+[Log] 🔄 PARTS: Aplicando filtros internamente (URL limpia): – Object (Parts.tsx, line 173)
+Object
+[Log] 🔧 Part SEO Hook Triggered: – Object (useSEO.ts, line 104)
+Object
+[Log] ❌ Part SEO: No part data available (useSEO.ts, line 106)

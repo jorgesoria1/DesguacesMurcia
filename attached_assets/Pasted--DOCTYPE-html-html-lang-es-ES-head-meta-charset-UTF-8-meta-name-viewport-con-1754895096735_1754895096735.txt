@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+    <title>Desguace Murcia - Repuestos Originales Vehículos</title>
+    <meta name="description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta name="keywords" content="desguace murcia, repuestos vehículos, piezas coche, recambios originales, garantía 3 meses"/>
+
+    <!-- Open Graph meta tags -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="Desguace Murcia"/>
+    <meta property="og:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta property="og:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"/>
+    <meta property="og:url" content="https://desguacemurcia.com"/>
+    <meta property="og:site_name" content="Desguace Murcia"/>
+
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Desguace Murcia"/>
+    <meta name="twitter:description" content="Encuentra repuestos originales para tu vehículo en Desguace Murcia. Más de 120.000 piezas disponibles con garantía de 3 meses."/>
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&h=630&fit=crop"/>
+
+    <!-- Preloads críticos para primera carga -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn11.metasync.com" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    <link rel="dns-prefetch" href="https://api.replit.com">
+
+    <!-- Preload módulos críticos de JavaScript -->
+    <link rel="modulepreload" href="data:application/octet-stream;base64,aW1wb3J0IFJlYWN0IGZyb20gInJlYWN0IjsKaW1wb3J0IHsgY3JlYXRlUm9vdCB9IGZyb20gInJlYWN0LWRvbS9jbGllbnQiOwppbXBvcnQgQXBwIGZyb20gIi4vQXBwIjsKaW1wb3J0ICIuL2luZGV4LmNzcyI7CmltcG9ydCB7IGluaXRGaXJzdExvYWRPcHRpbWl6YXRpb25zIH0gZnJvbSAiQC91dGlscy9maXJzdC1sb2FkLW9wdGltaXplciI7CmltcG9ydCB7IGluaXRDcml0aWNhbFBlcmZvcm1hbmNlIH0gZnJvbSAiQC91dGlscy9wZXJmb3JtYW5jZS1jcml0aWNhbCI7CmltcG9ydCB7IGluaXRTZXJ2ZXJPcHRpbWl6YXRpb25zIH0gZnJvbSAiQC91dGlscy9zZXJ2ZXItb3B0aW1pemF0aW9uIjsKaW1wb3J0IHsgaW5qZWN0Q3JpdGljYWxDU1MsIHByZWxvYWRDcml0aWNhbEZvbnRzIH0gZnJvbSAiQC91dGlscy9jcml0aWNhbC1jc3MiOwppbXBvcnQgeyBpbml0SlNPcHRpbWl6YXRpb25zIH0gZnJvbSAiQC91dGlscy9qcy1vcHRpbWl6YXRpb24iOwppbXBvcnQgeyBpbml0U2FmZUNhY2hlLCBvcHRpbWl6ZUNETkltYWdlcywgZGVmZXJOb25Dcml0aWNhbFNjcmlwdHMgfSBmcm9tICJAL3V0aWxzL3NhZmUtY2FjaGUtc3RyYXRlZ3kiOwppbXBvcnQgeyBpbml0SW1hZ2VPcHRpbWl6YXRpb25zIH0gZnJvbSAiQC91dGlscy9lbWVyZ2VuY3ktaW1hZ2Utb3B0aW1pemVyIjsKaW1wb3J0IHsgaW5pdEFnZ3Jlc3NpdmVQZXJmb3JtYW5jZSwgZml4VmVoaWNsZURldGFpbExheW91dFNoaWZ0LCBtb25pdG9yQ3JpdGljYWxNZXRyaWNzIH0gZnJvbSAiQC91dGlscy9jcml0aWNhbC1wZXJmb3JtYW5jZS1hZ2dyZXNzaXZlIjsKaW1wb3J0IHsgaW5pdEV4dHJlbWVKU09wdGltaXphdGlvbiwgbW9uaXRvckpTUGVyZm9ybWFuY2UgfSBmcm9tICJAL3V0aWxzL2V4dHJlbWUtanMtb3B0aW1pemF0aW9uIjsKCi8vIEVYVFJFTUUgUEFHRVNQRUVEIEZJWEVTIC0gQ3JpdGljYWwgQ2hhaW4gNiwzNTVtcyDihpIgPDJzCmluaXRFeHRyZW1lSlNPcHRpbWl6YXRpb24oKTsgLy8gTlVFVk86IElubGluZSBjcsOtdGljbyArIGRlZmVyIGFncmVzaXZvCmluaXRBZ2dyZXNzaXZlUGVyZm9ybWFuY2UoKTsgLy8gTlVFVk86IFByZWxvYWQgY3LDrXRpY28gKyBDU1MgaW5saW5lCmZpeFZlaGljbGVEZXRhaWxMYXlvdXRTaGlmdCgpOyAvLyBOVUVWTzogRml4IENMUyAwLjU5MgppbmplY3RDcml0aWNhbENTUygpOwpwcmVsb2FkQ3JpdGljYWxGb250cygpOwppbml0U2FmZUNhY2hlKCk7IC8vIENhY2hlIHNlZ3VybyBxdWUgTk8gYWZlY3RhIG1ldGEgdGFncwppbml0SW1hZ2VPcHRpbWl6YXRpb25zKCk7IC8vIE9wdGltaXphciBpbcOhZ2VuZXMgQ0ROIG1hc2l2YXMKaW5pdEpTT3B0aW1pemF0aW9ucygpOwppbml0Q3JpdGljYWxQZXJmb3JtYW5jZSgpOwppbml0Rmlyc3RMb2FkT3B0aW1pemF0aW9ucygpOwppbml0U2VydmVyT3B0aW1pemF0aW9ucygpOwoKLy8gTW9uaXRvciBkZSBtw6l0cmljYXMgcGFyYSBkZWJ1Z2dpbmcKaWYgKHR5cGVvZiB3aW5kb3cgIT09ICd1bmRlZmluZWQnICYmIHdpbmRvdy5sb2NhdGlvbi5ob3N0bmFtZS5pbmNsdWRlcygncmVwbGl0LmRldicpKSB7CiAgbW9uaXRvckNyaXRpY2FsTWV0cmljcygpOwogIG1vbml0b3JKU1BlcmZvcm1hbmNlKCk7Cn0KCi8vIE9wdGltaXphY2lvbmVzIHBvc3QtY2FyZ2EKZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsICgpID0+IHsKICBvcHRpbWl6ZUNETkltYWdlcygpOwogIGRlZmVyTm9uQ3JpdGljYWxTY3JpcHRzKCk7Cn0pOwoKY3JlYXRlUm9vdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgicm9vdCIpISkucmVuZGVyKDxBcHAgLz4pOw==">
+    <link rel="modulepreload" href="/assets/App-DNmBBbWs.tsx">
+    <link rel="modulepreload" href="/assets/VehicleDetail-Cxc9Hxpl.tsx">
+
+    <!-- Preload CSS crítico -->
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    <script type="module" crossorigin src="/assets/index-CcZroLCk.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-MjX_aUPr.css">
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>

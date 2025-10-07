@@ -1,0 +1,39 @@
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Log] 🔧 DEBUG PartDetail data structure: – {data: undefined, isLoading: true, error: null} (PartDetail.tsx, line 115)
+[Log] 🔧 DEBUG PartDetail data structure: – {data: Object, isLoading: false, error: null} (PartDetail.tsx, line 115)
+{data: Object, isLoading: false, error: null}Object
+[Log] 🔧 SEO Debug: setPartTitle llamada con datos: – {id: 2173418, refLocal: 1427482, idEmpresa: 1236, …} (seo.ts, line 24)
+{id: 2173418, refLocal: 1427482, idEmpresa: 1236, codArticulo: "0020005", refPrincipal: "8118548D20", …}Object
+[Log] 🔧 SEO Debug: Título generado para pieza: – "FARO DERECHO LEXUS RX (AGL20) - 620€ | Desguace Murcia" (seo.ts, line 34)
+[Log] 🔧 SEO Debug: Actualizando título a: – "FARO DERECHO LEXUS RX (AGL20) - 620€ | Desguace Murcia" (seo.ts, line 3)
+[Log] 🔧 SEO Debug: Título actualizado en document.title: – "FARO DERECHO LEXUS RX (AGL20) - 620€ | Desguace Murcia" (seo.ts, line 5)
+[Error] Failed to load resource: the server responded with a status of 401 (Unauthorized) (me, line 0)
+[Log] ✅ Chatbot Voiceflow cargado correctamente (App.tsx, line 535)
+[Info] voiceflow webchat v2.98.0 (bundle.mjs, line 520)
+[Error] Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `R7`. See https://reactjs.org/link/warning-keys for more information.
+Bw@https://cdn.voiceflow.com/widget-next/bundle.mjs:234:2363
+R7@https://cdn.voiceflow.com/widget-next/bundle.mjs:462:2493
+div
+div
+Uw@https://cdn.voiceflow.com/widget-next/bundle.mjs:234:2082
+pq@https://cdn.voiceflow.com/widget-next/bundle.mjs:519:7455
+_D@https://cdn.voiceflow.com/widget-next/bundle.mjs:344:8012
+	Q (bundle.mjs:55:1025)
+	j (bundle.mjs:55:787)
+	Hi (bundle.mjs:65:319)
+	si (bundle.mjs:65:577)
+	fu (bundle.mjs:65:2573)
+	R7 (bundle.mjs:462:3779)
+	C0 (bundle.mjs:185:384)
+	Y2 (bundle.mjs:189:5600)
+	EC (bundle.mjs:208:2148)
+	DR (bundle.mjs:204:22239)
+	WK (bundle.mjs:204:21845)
+	mb (bundle.mjs:204:21598)
+	xR (bundle.mjs:204:17617)
+	lt (bundle.mjs:81:2213)
+	Be (bundle.mjs:81:1957)
+	Fr (bundle.mjs:81:3826)

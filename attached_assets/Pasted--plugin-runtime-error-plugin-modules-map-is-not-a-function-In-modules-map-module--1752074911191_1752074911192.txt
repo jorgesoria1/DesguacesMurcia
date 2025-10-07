@@ -1,0 +1,86 @@
+[plugin:runtime-error-plugin] modules.map is not a function. (In 'modules.map((module) => {
+          const Icon = moduleIcons[module.provider] || CreditCard;
+          return /* @__PURE__ */ jsxDEV(
+            Card,
+            {
+              "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:255:18",
+              "data-component-name": "Card",
+              className: `cursor-pointer transition-all ${activeModule === module.provider ? "ring-2 ring-primary" : "hover:bg-muted/50"}`,
+              onClick: () => handleModuleChange(module.provider),
+              children: [
+                /* @__PURE__ */ jsxDEV(CardHeader, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:264:20", "data-component-name": "CardHeader", className: "pb-3", children: /* @__PURE__ */ jsxDEV("div", { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:265:22", "data-component-name": "div", className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ jsxDEV("div", { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:266:24", "data-component-name": "div", className: "flex items-center space-x-2", children: [
+                    /* @__PURE__ */ jsxDEV(Icon, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:267:26", "data-component-name": "Icon", className: "h-5 w-5 text-muted-foreground" }, void 0, false, {
+                      fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                      lineNumber: 267,
+                      columnNumber: 27
+                    }, this),
+                    /* @__PURE__ */ jsxDEV(CardTitle, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:268:26", "data-component-name": "CardTitle", className: "text-sm", children: module.name }, void 0, false, {
+                      fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                      lineNumber: 268,
+                      columnNumber: 27
+                    }, this)
+                  ] }, void 0, true, {
+                    fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                    lineNumber: 266,
+                    columnNumber: 25
+                  }, this),
+                  /* @__PURE__ */ jsxDEV(Badge, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:270:24", "data-component-name": "Badge", variant: moduleStates[module.provider] ? "default" : "secondary", children: moduleStates[module.provider] ? "Activo" : "Inactivo" }, void 0, false, {
+                    fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                    lineNumber: 270,
+                    columnNumber: 25
+                  }, this)
+                ] }, void 0, true, {
+                  fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                  lineNumber: 265,
+                  columnNumber: 23
+                }, this) }, void 0, false, {
+                  fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                  lineNumber: 264,
+                  columnNumber: 21
+                }, this),
+                /* @__PURE__ */ jsxDEV(CardContent, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:275:20", "data-component-name": "CardContent", className: "pt-0", children: /* @__PURE__ */ jsxDEV("div", { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:276:22", "data-component-name": "div", className: "flex items-center space-x-2", children: [
+                  /* @__PURE__ */ jsxDEV(
+                    Switch,
+                    {
+                      "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:277:24",
+                      "data-component-name": "Switch",
+                      checked: moduleStates[module.provider],
+                      onCheckedChange: (checked) => handleToggleModule(module.provider, checked),
+                      onClick: (e) => e.stopPropagation()
+                    },
+                    void 0,
+                    false,
+                    {
+                      fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                      lineNumber: 277,
+                      columnNumber: 25
+                    },
+                    this
+                  ),
+                  /* @__PURE__ */ jsxDEV(Label, { "data-replit-metadata": "client/src/pages/AdminPaymentMethods.tsx:282:24", "data-component-name": "Label", className: "text-xs text-muted-foreground", children: moduleStates[module.provider] ? "Habilitado" : "Deshabilitado" }, void 0, false, {
+                    fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                    lineNumber: 282,
+                    columnNumber: 25
+                  }, this)
+                ] }, void 0, true, {
+                  fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                  lineNumber: 276,
+                  columnNumber: 23
+                }, this) }, void 0, false, {
+                  fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+                  lineNumber: 275,
+                  columnNumber: 21
+                }, this)
+              ]
+            },
+            module.provider,
+            true,
+            {
+              fileName: "/home/runner/workspace/client/src/pages/AdminPaymentMethods.tsx",
+              lineNumber: 255,
+              columnNumber: 19
+            },
+            this
+          );
+        })', 'modules.map' is undefined)
