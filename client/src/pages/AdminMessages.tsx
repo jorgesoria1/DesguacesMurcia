@@ -647,10 +647,27 @@ const AdminMessages = () => {
                                 console.error(`Error loading image: ${imagePath}`);
                                 const target = e.currentTarget;
                                 target.style.display = 'none';
-                                // Add placeholder div after the broken image
+                                // Add placeholder div after the broken image (using safe DOM methods)
                                 const placeholder = document.createElement('div');
                                 placeholder.className = 'w-full h-32 rounded-lg border border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-sm';
-                                placeholder.innerHTML = `<div class="text-center"><div class="mb-1">❌</div>Imagen no disponible<br/><span class="text-xs">archivo ${index + 1}</span></div>`;
+                                
+                                const container = document.createElement('div');
+                                container.className = 'text-center';
+                                const icon = document.createElement('div');
+                                icon.className = 'mb-1';
+                                icon.textContent = '❌';
+                                const text = document.createElement('div');
+                                text.textContent = 'Imagen no disponible';
+                                const fileInfo = document.createElement('span');
+                                fileInfo.className = 'text-xs';
+                                fileInfo.textContent = `archivo ${index + 1}`;
+                                
+                                container.appendChild(icon);
+                                container.appendChild(text);
+                                container.appendChild(document.createElement('br'));
+                                container.appendChild(fileInfo);
+                                placeholder.appendChild(container);
+                                
                                 target.parentNode?.appendChild(placeholder);
                               }}
                             />

@@ -226,37 +226,54 @@ export function showBrowserWarning(): void {
     if (!isBrowserSupported()) {
       const message = `Tu navegador ${browser.name} ${browser.version} puede no ser completamente compatible con esta aplicación. Para la mejor experiencia, te recomendamos actualizar a una versión más reciente.`;
       
-      // Mostrar advertencia de forma no intrusiva
+      // Mostrar advertencia de forma no intrusiva usando métodos DOM seguros
       setTimeout(() => {
         const notification = document.createElement('div');
-        notification.innerHTML = `
-          <div style="
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #fff3cd;
-            color: #856404;
-            padding: 12px 16px;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            font-size: 14px;
-            max-width: 400px;
-            z-index: 10000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          ">
-            <strong>Aviso de Compatibilidad:</strong><br>
-            ${message}
-            <button onclick="this.parentElement.parentElement.remove()" style="
-              float: right;
-              background: none;
-              border: none;
-              font-size: 18px;
-              cursor: pointer;
-              color: #856404;
-              margin-left: 10px;
-            ">×</button>
-          </div>
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #fff3cd;
+          color: #856404;
+          padding: 12px 16px;
+          border: 1px solid #ffeaa7;
+          border-radius: 4px;
+          font-size: 14px;
+          max-width: 400px;
+          z-index: 10000;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         `;
+        
+        const title = document.createElement('strong');
+        title.textContent = 'Aviso de Compatibilidad:';
+        
+        const messageText = document.createElement('span');
+        messageText.textContent = message;
+        
+        const closeButton = document.createElement('button');
+        closeButton.textContent = '×';
+        closeButton.style.cssText = `
+          float: right;
+          background: none;
+          border: none;
+          font-size: 18px;
+          cursor: pointer;
+          color: #856404;
+          margin-left: 10px;
+        `;
+        closeButton.onclick = () => {
+          if (notification.parentElement) {
+            notification.parentElement.removeChild(notification);
+          }
+        };
+        
+        content.appendChild(closeButton);
+        content.appendChild(title);
+        content.appendChild(document.createElement('br'));
+        content.appendChild(messageText);
+        notification.appendChild(content);
         
         document.body.appendChild(notification);
         
