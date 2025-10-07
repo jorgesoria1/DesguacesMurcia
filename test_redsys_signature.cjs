@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 
-// Datos de prueba oficiales de Redsys
+// Datos de prueba desde variables de entorno (valores por defecto son los oficiales de Redsys)
 const testConfig = {
-  merchantCode: '999008881',  // Código oficial de pruebas
-  terminal: '001',            // Terminal oficial de pruebas
-  secretKey: 'sq7HjrUOBfKmC576ILgskD5srU870gJ7'  // Clave oficial
+  merchantCode: process.env.REDSYS_MERCHANT_CODE || '999008881',  // Código oficial de pruebas
+  terminal: process.env.REDSYS_TERMINAL || '001',            // Terminal oficial de pruebas
+  secretKey: process.env.REDSYS_SECRET_KEY || 'sq7HjrUOBfKmC576ILgskD5srU870gJ7'  // Clave oficial
 };
 
 // Datos de la transacción

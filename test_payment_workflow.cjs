@@ -29,9 +29,10 @@ async function apiRequest(method, url, data = null) {
 
 // Función para generar firma de Redsys
 function generateRedsysSignature(merchantParameters, secretKey) {
-  // Simular el proceso de firma de Redsys
+  // Simular el proceso de firma de Redsys con createCipheriv (seguro)
   const key = Buffer.from(secretKey, 'base64');
-  const cipher = crypto.createCipher('des-ede3-cbc', key);
+  const iv = Buffer.alloc(8, 0); // IV de ceros para 3DES-CBC
+  const cipher = crypto.createCipheriv('des-ede3-cbc', key, iv);
   let encrypted = cipher.update(merchantParameters, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   return encrypted;

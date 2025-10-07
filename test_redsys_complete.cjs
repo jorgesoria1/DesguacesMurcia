@@ -3,12 +3,12 @@ const crypto = require('crypto');
 
 console.log('=== VERIFICACIÓN COMPLETA REDSYS ===');
 
-// 1. Configuración actual
+// 1. Configuración desde variables de entorno (usar claves oficiales de test Redsys)
 const config = {
-  merchantCode: '999008881',
-  terminal: '001',
-  secretKey: 'sq7HjrUOBfKmC576ILgskD5srU870gJ7',
-  environment: 'test'
+  merchantCode: process.env.REDSYS_MERCHANT_CODE || '999008881',
+  terminal: process.env.REDSYS_TERMINAL || '001',
+  secretKey: process.env.REDSYS_SECRET_KEY || 'sq7HjrUOBfKmC576ILgskD5srU870gJ7',
+  environment: process.env.REDSYS_ENV || 'test'
 };
 
 // 2. URL correcta según entorno
