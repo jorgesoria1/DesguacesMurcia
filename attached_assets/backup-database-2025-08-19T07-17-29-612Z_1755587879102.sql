@@ -275,7 +275,8 @@ CREATE TABLE "google_reviews_config" (
 );
 
 -- Sample data for table: google_reviews_config
-INSERT INTO "google_reviews_config" ("id", "business_name", "location", "api_provider", "api_key", "enabled", "min_rating", "max_reviews", "cache_hours", "last_update", "created_at", "updated_at", "place_id") VALUES (1, 'Desguace Murcia S.L.', 'Murcia, España', 'google_places', 'AIzaSyDt9EWGrcgDeQs4NGVQ6yaDmC8J9-zuiuA', true, 2, 10, 24, '2025-08-03T21:04:42.442Z', '2025-08-01T18:28:42.189Z', '2025-08-01T18:28:42.189Z', 'ChIJ5fde6ODtcQ0Rq7JrtQ-mLQU');
+-- SECURITY: API key removed - use environment variable GOOGLE_API_KEY instead
+INSERT INTO "google_reviews_config" ("id", "business_name", "location", "api_provider", "api_key", "enabled", "min_rating", "max_reviews", "cache_hours", "last_update", "created_at", "updated_at", "place_id") VALUES (1, 'Desguace Murcia S.L.', 'Murcia, España', 'google_places', NULL, true, 2, 10, 24, '2025-08-03T21:04:42.442Z', '2025-08-01T18:28:42.189Z', '2025-08-01T18:28:42.189Z', 'ChIJ5fde6ODtcQ0Rq7JrtQ-mLQU');
 
 -- Table: homepage_blocks (10 records)
 DROP TABLE IF EXISTS "homepage_blocks" CASCADE;
